@@ -1,0 +1,5 @@
+TITLE = "Evolution"
+SIZE = WIDTH, HEIGHT = ((1000, 800))
+FPS = 60
+PLAYER_FRIC = -0.05
+PLAYER_ACC = 0.5
