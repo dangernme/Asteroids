@@ -11,7 +11,7 @@ pg.display.set_caption(TITLE)
 
 def draw(bg_image, player):
     window.blit(bg_image, (0,0))
-    window.blit(player.image, player.pos)
+    window.blit(player.image, (player.pos.x - int(player.image.get_width() / 2), player.pos.y - int(player.image.get_height() / 2)))
 
     pg.display.update()
 

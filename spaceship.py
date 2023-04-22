@@ -15,6 +15,7 @@ class Spaceship(Movable):
         self.armor = random.randint(80, 100)
 
     def update(self):
+        super().update()
         self.acc = Vec(0, 0)
         keys = pg.key.get_pressed()
         if keys[pg.K_UP]:
@@ -26,7 +27,7 @@ class Spaceship(Movable):
             self.orientation += 2
         if keys[pg.K_RIGHT]:
             self.orientation -= 2
-        self.image, _ = self.rotate(self.clean_image, self.orientation, self.pos)
+        self.image = self.rotate(self.clean_image, self.orientation)
 
         self.acc += self.vel * PLAYER_FRIC
         self.vel += self.acc

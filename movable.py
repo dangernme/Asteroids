@@ -1,5 +1,6 @@
 import os
 import pygame as pg
+from settings import *
 Vec = pg.math.Vector2
 
 class Movable(pg.sprite.Sprite):
@@ -11,9 +12,17 @@ class Movable(pg.sprite.Sprite):
         self.vel = Vec(0, 0)
         self.acc = Vec(0, 0)
 
-    def rotate(self, image, angle, pos):
-        rotated_image = pg.transform.rotate(image, angle)
-        new_rect = rotated_image.get_rect(center = image.get_rect(center = pos).center)
+    def rotate(self, image, angle):
+        self.image = self.clean_image
+        return pg.transform.rotate(image, angle)
 
-        return rotated_image, new_rect
-    
+    def update(self):
+        if self.pos.x < 0:
+            self.pos.x = 0
+        if self.pos.x > WIDTH:
+            self.pos.x = WIDTH
+        if self.pos.y < 0:
+            self.pos.y = 0
+        if self.pos.y > HEIGHT:
+            self.pos.y = HEIGHT
+ 
