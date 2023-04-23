@@ -6,13 +6,16 @@ from spaceship import Spaceship
 Vec = pg.math.Vector2
 
 pg.init()
+pg.font.init()
+font = pg.font.SysFont('Comic Sans MS', 30)
 window = pg.display.set_mode(SIZE)
 clock = pg.time.Clock()
 pg.display.set_caption(TITLE)
 
-def draw(bg_image, player):
+def draw(bg_image, player, text):
     window.blit(bg_image, (0, 0))
     window.blit(player.image, (player.pos.x - int(player.image.get_width() / 2), player.pos.y - int(player.image.get_height() / 2)))
+    window.blit(text, (10,10))
 
     pg.display.update()
 
@@ -28,12 +31,16 @@ def main():
     while running:
         clock.tick(FPS)
         player.update()
-        draw(bg_image, player)
+
+        text = font.render(str(player.life_points), False, (255, 255, 255))
+        draw(bg_image, player, text)
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
                 break
+
+
 
     pg.quit()
     sys.exit()
