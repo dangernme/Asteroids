@@ -5,6 +5,7 @@ from settings import *
 from spaceship import Spaceship
 Vec = pg.math.Vector2
 
+
 pg.init()
 pg.font.init()
 font = pg.font.SysFont('Comic Sans MS', TEXT_SIZE)
@@ -12,11 +13,13 @@ window = pg.display.set_mode(SIZE)
 clock = pg.time.Clock()
 pg.display.set_caption(TITLE)
 
-def draw(bg_image, player):
+def draw(bg_image, player, rocket):
     window.blit(bg_image, (TEXT_WIDTH, 0))
-    window.blit(player.image, (player.pos.x - int(player.image.get_width() / 2), player.pos.y - int(player.image.get_height() / 2)))
+    if rocket is not None:
+        rocket.draw()
+    player.draw()
     pg.draw.rect(window, (50,50,50), pg.Rect(0,0, TEXT_WIDTH, HEIGHT))
-
+            
     window.blit(font.render(f"Max Speed {player.acc_lim * 100}", False, TEXT_COLOR), (10, 5))
     window.blit(font.render(f"Health {player.health}", False, TEXT_COLOR), (10, 35))
     window.blit(font.render(f"Rockets {player.rockets}", False, TEXT_COLOR), (10, 65))
@@ -32,6 +35,7 @@ def main():
     
     player = Spaceship(Vec(WIDTH // 2, HEIGHT // 2))
 
+    rocket = None
     while running:
         clock.tick(FPS)
 
@@ -41,11 +45,13 @@ def main():
                 break
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_LCTRL:
-                    player.fire()
+                    rocket = player.fire()
 
         player.update()
-        draw(bg_image, player)
-
+        if rocket is not None:
+            rocket.update()
+        draw(bg_image, player, rocket)
+        
     pg.quit()
     sys.exit()
 

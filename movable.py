@@ -9,3 +9,4 @@ class Movable(pg.sprite.Sprite):
         self.vel = Vec(0, 0)
         self.acc = Vec(0, 0)
         self.acc_lim = init_acc_lim
+        self.window = pg.display.get_surface()
