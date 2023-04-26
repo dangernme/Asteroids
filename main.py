@@ -13,9 +13,9 @@ window = pg.display.set_mode(SIZE)
 clock = pg.time.Clock()
 pg.display.set_caption(TITLE)
 
-def draw(bg_image, player, rocket):
+def draw(bg_image, player, active_rockets):
     window.blit(bg_image, (TEXT_WIDTH, 0))
-    if rocket is not None:
+    for rocket in active_rockets:
         rocket.draw()
     player.draw()
     pg.draw.rect(window, (50,50,50), pg.Rect(0,0, TEXT_WIDTH, HEIGHT))
@@ -29,8 +29,7 @@ def draw(bg_image, player, rocket):
 def main():
     running = True
 
-    bg_image = pg.transform.scale(pg.image.load(
-        join('assets', 'Background', 'Blue_Nebula_01.png')), \
+    bg_image = pg.transform.scale(pg.image.load(join('assets', 'Background', 'Blue_Nebula_01.png')), \
         (WIDTH - TEXT_WIDTH, HEIGHT))
     
     player = Spaceship(Vec(WIDTH // 2, HEIGHT // 2))
@@ -45,12 +44,14 @@ def main():
                 break
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_LCTRL:
-                    rocket = player.fire()
+                    player.fire()
 
         player.update()
-        if rocket is not None:
-            rocket.update()
-        draw(bg_image, player, rocket)
+        for active_rocket in player.active_rockets:
+            active_rocket.update()
+            if active_rocket.out_of_limits:
+              player.active_rockets.remove(active_rocket)  
+        draw(bg_image, player, player.active_rockets)
         
     pg.quit()
     sys.exit()

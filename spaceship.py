@@ -11,31 +11,24 @@ class Spaceship(Movable):
     def __init__(self, init_pos):
         super().__init__(init_pos, Vec(rd.randint(1, 10), rd.randint(1, 10)).normalize(), 0.5)
         self.window = pg.display.get_surface()
-        self.clean_image_0 = pg.image.load(
-            join('assets', join('Ships', 'Main Ship Full health.png')))
-        self.clean_image_1 = pg.image.load(
-            join('assets', join('Ships', 'Main Ship Slight damage.png')))
-        self.clean_image_2 = pg.image.load(
-            join('assets', join('Ships', 'Main Ship Damaged.png')))
-        self.clean_image_3 = pg.image.load(
-            join('assets', join('Ships', 'Main Ship Very damaged.png')))
+        self.clean_image_0 = pg.image.load(join('assets', join('Ships', 'Main Ship Full health.png')))
+        self.clean_image_1 = pg.image.load(join('assets', join('Ships', 'Main Ship Slight damage.png')))
+        self.clean_image_2 = pg.image.load(join('assets', join('Ships', 'Main Ship Damaged.png')))
+        self.clean_image_3 = pg.image.load(join('assets', join('Ships', 'Main Ship Very damaged.png')))
         self.image = self.clean_image_0
         self.health = 100
         self.rockets = 50
+        self.active_rockets = []
 
     def update_ship_image(self):
         if self.health > 80:
-            self.image = pg.transform.rotate(
-                self.clean_image_0, self.direction.angle_to(Vec(0, -1)))
+            self.image = pg.transform.rotate(self.clean_image_0, self.direction.angle_to(Vec(0, -1)))
         elif self.health <= 80 and self.health > 50:
-            self.image = pg.transform.rotate(
-                self.clean_image_1, self.direction.angle_to(Vec(0, -1)))
+            self.image = pg.transform.rotate(self.clean_image_1, self.direction.angle_to(Vec(0, -1)))
         elif self.health <= 50 and self.health > 20:
-            self.image = pg.transform.rotate(
-                self.clean_image_2, self.direction.angle_to(Vec(0, -1)))
+            self.image = pg.transform.rotate(self.clean_image_2, self.direction.angle_to(Vec(0, -1)))
         else:
-            self.image = pg.transform.rotate(
-                self.clean_image_3, self.direction.angle_to(Vec(0, -1)))
+            self.image = pg.transform.rotate(self.clean_image_3, self.direction.angle_to(Vec(0, -1)))
 
     def handle_border_collition(self):
         if self.pos.x < TEXT_WIDTH:
@@ -60,11 +53,12 @@ class Spaceship(Movable):
             self.health -= 1
 
     def fire(self):
-        if self.rockets > 0:
+        if self.rockets > 0 and len(self.active_rockets) < MAX_ACTIVE_ROCKETS: 
             self.rockets -= 1
-            start_pos = Vec(self.pos.x, self.pos.y - int(self.image.get_height() / 2))
-            # start_pos = Vec(self.pos.x - int(self.image.get_width() / 2), self.pos.y - int(self.image.get_height() / 2))
-            return Rocket(start_pos , self.direction.copy(), self.acc_lim * 0.001)
+            start_pos = Vec(self.pos.x - int(self.image.get_height() / 2), self.pos.y - int(self.image.get_height() / 2))
+            rect = self.image.get_rect()
+
+            self.active_rockets.append(Rocket(start_pos + rect.center , self.direction.copy(), self.acc_lim * 0.00004))
 
     def update(self):
         self.acc = Vec(0, 0)

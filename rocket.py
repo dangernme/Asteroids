@@ -15,9 +15,12 @@ class Rocket(Movable):
         self.images.append(pg.transform.rotate(rocket_tiles[0], self.direction.angle_to(Vec(0, -1))))
         self.images.append(pg.transform.rotate(rocket_tiles[1], self.direction.angle_to(Vec(0, -1))))
         self.images.append(pg.transform.rotate(rocket_tiles[2], self.direction.angle_to(Vec(0, -1))))
-        
+        self.out_of_limits = False
         self.count = 0
+        self.rect = self.images[0].get_rect()
         self.interval = 0
+        self.pos -= self.rect.center
+        self.acc += self.direction.normalize()
 
     def draw(self):
         if self.interval == 10:
@@ -28,11 +31,17 @@ class Rocket(Movable):
         
         index = self.count % 3
         image = self.images[index]
+        self.rect = image.get_rect()
+        
         self.window.blit(image, (self.pos.x, self.pos.y))
-
+                
     def update(self):
         self.acc += self.direction * self.acc_lim
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
+                
+        if self.pos.x < TEXT_WIDTH or self.pos.x > WIDTH or self.pos.y < 0 or self.pos.y > HEIGHT:
+            self.out_of_limits = True      
+        
         
 
