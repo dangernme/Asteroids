@@ -19,6 +19,8 @@ class Spaceship(Movable):
         self.health = 100
         self.rockets = 50
         self.active_rockets = []
+        self.gamepad = pg.joystick.Joystick(0)
+        self.gamepad.init()
 
     def update_ship_image(self):
         if self.health > 80:
@@ -63,17 +65,19 @@ class Spaceship(Movable):
     def update(self):
         self.acc = Vec(0, 0)
         keys = pg.key.get_pressed()
+        axis_x = self.gamepad.get_axis(0)
+        axis_y = self.gamepad.get_axis(1)
 
         # handle direction
-        if keys[pg.K_LEFT]:
+        if keys[pg.K_LEFT] or axis_x < -0.5:
             self.direction = self.direction.rotate(-5).normalize()
-        if keys[pg.K_RIGHT]:
+        if keys[pg.K_RIGHT] or axis_x > 0.5:
             self.direction = self.direction.rotate(+5).normalize()
-
+        
         # handle movement
-        if keys[pg.K_UP]:
+        if keys[pg.K_UP] or axis_y < -0.5:
             self.acc += self.direction * self.acc_lim
-        if keys[pg.K_DOWN]:
+        if keys[pg.K_DOWN] or axis_y > 0.5:  
             self.acc += self.vel * FRICTION * 2
         else:
             self.acc += self.vel * FRICTION

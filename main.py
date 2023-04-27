@@ -8,6 +8,7 @@ Vec = pg.math.Vector2
 
 pg.init()
 pg.font.init()
+pg.joystick.init()
 font = pg.font.SysFont('Comic Sans MS', TEXT_SIZE)
 window = pg.display.set_mode(SIZE)
 clock = pg.time.Clock()
@@ -22,28 +23,36 @@ def draw(bg_image, player, active_rockets):
             
     window.blit(font.render(f"Max Speed {player.acc_lim * 100}", False, TEXT_COLOR), (10, 5))
     window.blit(font.render(f"Health {player.health}", False, TEXT_COLOR), (10, 35))
-    window.blit(font.render(f"Rockets {player.rockets}", False, TEXT_COLOR), (10, 65))
-
+    
+    if player.rockets == 0:
+        window.blit(font.render(f"Rockets {player.rockets}", False, TEXT_COLOR_RED), (10, 65))
+    else:
+        window.blit(font.render(f"Rockets {player.rockets}", False, TEXT_COLOR), (10, 65))
     pg.display.update()
 
 def main():
     running = True
 
+    gamepad = pg.joystick.Joystick(0)
+    gamepad.init()
     bg_image = pg.transform.scale(pg.image.load(join('assets', 'Background', 'Blue_Nebula_01.png')), \
         (WIDTH - TEXT_WIDTH, HEIGHT))
     
+    
     player = Spaceship(Vec(WIDTH // 2, HEIGHT // 2))
-
-    rocket = None
+    
     while running:
         clock.tick(FPS)
-
+             
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
                 break
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_LCTRL:
+                    player.fire()
+            if event.type == pg.JOYBUTTONDOWN:
+                if event.button == BUTTON_A:
                     player.fire()
 
         player.update()
@@ -53,6 +62,7 @@ def main():
               player.active_rockets.remove(active_rocket)  
         draw(bg_image, player, player.active_rockets)
         
+    pg.joystick.quit()
     pg.quit()
     sys.exit()
 
