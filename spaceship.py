@@ -10,27 +10,32 @@ Vec = pg.math.Vector2
 class Spaceship(Movable):
     def __init__(self, init_pos):
         super().__init__(init_pos, Vec(rd.randint(1, 10), rd.randint(1, 10)).normalize(), 0.5)
-        self.window = pg.display.get_surface()
-        self.clean_image_0 = pg.image.load(join('assets', join('Ships', 'Main Ship Full health.png')))
-        self.clean_image_1 = pg.image.load(join('assets', join('Ships', 'Main Ship Slight damage.png')))
-        self.clean_image_2 = pg.image.load(join('assets', join('Ships', 'Main Ship Damaged.png')))
-        self.clean_image_3 = pg.image.load(join('assets', join('Ships', 'Main Ship Very damaged.png')))
-        self.image = self.clean_image_0
+        self.clean_images = [pg.image.load(join('assets', join('Ships', 'Main Ship Full health.png'))),
+            pg.image.load(join('assets', join('Ships', 'Main Ship Slight damage.png'))),
+            pg.image.load(join('assets', join('Ships', 'Main Ship Damaged.png'))),
+            pg.image.load(join('assets', join('Ships', 'Main Ship Very damaged.png')))]
+        self.image = self.clean_images[0]
         self.health = 100
         self.rockets = 50
         self.active_rockets = []
         self.gamepad = pg.joystick.Joystick(0)
         self.gamepad.init()
+        self.rect = self.image.get_rect(center= (self.pos.x, self.pos.y))
 
     def update_ship_image(self):
+        ship_count = 0
+
         if self.health > 80:
-            self.image = pg.transform.rotate(self.clean_image_0, self.direction.angle_to(Vec(0, -1)))
+            ship_count = 0
         elif self.health <= 80 and self.health > 50:
-            self.image = pg.transform.rotate(self.clean_image_1, self.direction.angle_to(Vec(0, -1)))
+            ship_count = 1
         elif self.health <= 50 and self.health > 20:
-            self.image = pg.transform.rotate(self.clean_image_2, self.direction.angle_to(Vec(0, -1)))
+            ship_count = 2
         else:
-            self.image = pg.transform.rotate(self.clean_image_3, self.direction.angle_to(Vec(0, -1)))
+            ship_count = 3
+            
+        self.image = pg.transform.rotate(self.clean_images[ship_count], self.direction.angle_to(Vec(0, -1)))
+        self.rect = self.image.get_rect(center= (self.pos.x, self.pos.y))
 
     def handle_border_collition(self):
         if self.pos.x < TEXT_WIDTH:
@@ -88,6 +93,9 @@ class Spaceship(Movable):
         self.acc_lim = self.health / 200
         self.handle_border_collition()
         self.update_ship_image()
+        
+        if self.health <= 0:
+            self.health = 0
 
     def draw(self):
         self.window.blit(self.image, (self.pos.x - int(self.image.get_width() / 2),

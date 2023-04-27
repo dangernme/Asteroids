@@ -17,7 +17,7 @@ class Rocket(Movable):
         self.images.append(pg.transform.rotate(rocket_tiles[2], self.direction.angle_to(Vec(0, -1))))
         self.out_of_limits = False
         self.count = 0
-        self.rect = self.images[0].get_rect()
+        self.rect = self.images[0].get_rect(center= (self.pos.x, self.pos.y))
         self.interval = 0
         self.pos -= self.rect.center
         self.acc += self.direction.normalize()
@@ -31,7 +31,7 @@ class Rocket(Movable):
         
         index = self.count % 3
         image = self.images[index]
-        self.rect = image.get_rect()
+        self.rect = image.get_rect(center= (self.pos.x, self.pos.y))
         
         self.window.blit(image, (self.pos.x, self.pos.y))
                 

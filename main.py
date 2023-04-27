@@ -3,7 +3,9 @@ from os.path import join
 import pygame as pg
 from settings import *
 from spaceship import Spaceship
+from asteroid import Asteroid
 Vec = pg.math.Vector2
+import random as rd
 
 
 pg.init()
@@ -14,7 +16,7 @@ window = pg.display.set_mode(SIZE)
 clock = pg.time.Clock()
 pg.display.set_caption(TITLE)
 
-def draw(bg_image, player, active_rockets):
+def draw(bg_image, player, active_rockets, asteroids):
     window.blit(bg_image, (TEXT_WIDTH, 0))
     for rocket in active_rockets:
         rocket.draw()
@@ -28,6 +30,9 @@ def draw(bg_image, player, active_rockets):
         window.blit(font.render(f"Rockets {player.rockets}", False, TEXT_COLOR_RED), (10, 65))
     else:
         window.blit(font.render(f"Rockets {player.rockets}", False, TEXT_COLOR), (10, 65))
+       
+    for asteroid in asteroids: 
+        asteroid.draw()
     pg.display.update()
 
 def main():
@@ -38,9 +43,12 @@ def main():
     bg_image = pg.transform.scale(pg.image.load(join('assets', 'Background', 'Blue_Nebula_01.png')), \
         (WIDTH - TEXT_WIDTH, HEIGHT))
     
-    
-    player = Spaceship(Vec(WIDTH // 2, HEIGHT // 2))
-    
+    player = Spaceship(Vec(TEXT_WIDTH + GAME_WIDTH // 2, HEIGHT // 2))
+    asteroids = [Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))),
+                 Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))),
+                 Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))),
+                 Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT)))]
+        
     while running:
         clock.tick(FPS)
              
@@ -56,11 +64,18 @@ def main():
                     player.fire()
 
         player.update()
+                
+        for asteroid in asteroids:
+            asteroid.update()
+            if pg.sprite.collide_circle(player, asteroid):
+                
+                player.health -= 1
+            
         for active_rocket in player.active_rockets:
             active_rocket.update()
             if active_rocket.out_of_limits:
               player.active_rockets.remove(active_rocket)  
-        draw(bg_image, player, player.active_rockets)
+        draw(bg_image, player, player.active_rockets, asteroids)
         
     pg.joystick.quit()
     pg.quit()
