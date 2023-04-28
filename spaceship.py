@@ -9,18 +9,20 @@ Vec = pg.math.Vector2
 
 class Spaceship(Movable):
     def __init__(self, init_pos):
-        super().__init__(init_pos, Vec(rd.randint(1, 10), rd.randint(1, 10)).normalize(), 0.5)
+        super().__init__(init_pos, Vec(rd.randint(1, 10), rd.randint(1, 10)).normalize())
         self.clean_images = [pg.image.load(join('assets', join('Ships', 'Main Ship Full health.png'))),
-            pg.image.load(join('assets', join('Ships', 'Main Ship Slight damage.png'))),
-            pg.image.load(join('assets', join('Ships', 'Main Ship Damaged.png'))),
-            pg.image.load(join('assets', join('Ships', 'Main Ship Very damaged.png')))]
+                            pg.image.load(join('assets', join('Ships', 'Main Ship Slight damage.png'))),
+                            pg.image.load(join('assets', join('Ships', 'Main Ship Damaged.png'))),
+                            pg.image.load(join('assets', join('Ships', 'Main Ship Very damaged.png')))]
         self.image = self.clean_images[0]
         self.health = 100
         self.rockets = 50
+        self.acc_lim = 0.5
+        self.acc = Vec(0, 0)
         self.active_rockets = []
         self.gamepad = pg.joystick.Joystick(0)
         self.gamepad.init()
-        self.rect = self.image.get_rect(center= (self.pos.x, self.pos.y))
+        self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
 
     def update_ship_image(self):
         ship_count = 0
@@ -35,7 +37,7 @@ class Spaceship(Movable):
             ship_count = 3
             
         self.image = pg.transform.rotate(self.clean_images[ship_count], self.direction.angle_to(Vec(0, -1)))
-        self.rect = self.image.get_rect(center= (self.pos.x, self.pos.y))
+        self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
 
     def handle_border_collition(self):
         if self.pos.x < TEXT_WIDTH:
@@ -62,10 +64,7 @@ class Spaceship(Movable):
     def fire(self):
         if self.rockets > 0 and len(self.active_rockets) < MAX_ACTIVE_ROCKETS: 
             self.rockets -= 1
-            start_pos = Vec(self.pos.x - int(self.image.get_height() / 2), self.pos.y - int(self.image.get_height() / 2))
-            rect = self.image.get_rect()
-
-            self.active_rockets.append(Rocket(start_pos + rect.center , self.direction.copy(), self.acc_lim * 0.00004))
+            self.active_rockets.append(Rocket(self.pos.copy(), self.direction.copy()))
 
     def update(self):
         self.acc = Vec(0, 0)
@@ -90,13 +89,17 @@ class Spaceship(Movable):
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
 
-        self.acc_lim = self.health / 200
         self.handle_border_collition()
+        if SPEED_HEALTH_DEPENDENCY:
+            self.acc_lim = self.health / 200
         self.update_ship_image()
         
         if self.health <= 0:
             self.health = 0
 
     def draw(self):
-        self.window.blit(self.image, (self.pos.x - int(self.image.get_width() / 2),
-                         self.pos.y - int(self.image.get_height() / 2)))
+        self.window.blit(self.image, (self.pos.x - self.image.get_width() // 2, self.pos.y - self.image.get_height() // 2))
+        if SHOW_POSITIONS:
+            pg.draw.circle(self.window, TEXT_COLOR_RED, self.pos, 3)
+            pg.draw.circle(self.window, TEXT_COLOR_RED, self.rect.center, 3)
+            pg.draw.circle(self.window, TEXT_COLOR_RED, self.rect.bottomright, 3)
