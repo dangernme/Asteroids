@@ -92,7 +92,7 @@ class Spaceship(Movable):
         self.pos += self.vel + 0.5 * self.acc
 
         self.handle_border_collition()
-        if SPEED_HEALTH_DEPENDENCY:
+        if not DEBUG_MODE:
             self.acc_lim = self.health / 200
         self.update_ship_image()
         

@@ -22,6 +22,7 @@ class Rocket(Movable):
         self.rect = self.rocket_tiles[0].get_rect(x=self.pos.x, y=self.pos.y)
         self.interval = 0
         self.speed = 4
+        self.radius = 5
 
     def draw(self):
         if self.interval == 10:
@@ -37,7 +38,7 @@ class Rocket(Movable):
         self.window.blit(image, self.pos)
         if DEBUG_MODE:
             pg.draw.circle(self.window, GREEN, self.pos, 3)
-            pg.draw.circle(self.window, RED, self.rect.center, 3)
+            pg.draw.circle(self.window, RED, self.rect.center, self.radius)
             pg.draw.circle(self.window, BLUE, self.rect.bottomright, 3)
                 
     def update(self):
