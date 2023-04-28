@@ -18,6 +18,9 @@ window = pg.display.set_mode(SIZE)
 clock = pg.time.Clock()
 pg.display.set_caption(TITLE)
 
+rocket_refill_timer = pg.USEREVENT
+player_repair_timer = pg.USEREVENT + 1
+
 def draw(bg_image, player, active_rockets, asteroids):
     window.blit(bg_image, (TEXT_WIDTH, 0)) # Draw background
     
@@ -33,7 +36,7 @@ def draw(bg_image, player, active_rockets, asteroids):
     pg.draw.rect(window, (50,50,50), pg.Rect(0,0, TEXT_WIDTH, HEIGHT))
                     
     window.blit(font.render(f"Max Speed {player.speed * 100:.0f}", False, TEXT_COLOR), (10, 5))
-    window.blit(font.render(f"Health {player.health}", False, TEXT_COLOR), (10, 35))
+    window.blit(font.render(f"Health {player.health} %", False, TEXT_COLOR), (10, 35))
     
     if player.rockets == 0:
         window.blit(font.render(f"Rockets {player.rockets}", False, RED), (10, 65))
@@ -65,6 +68,8 @@ def handle_asteroids(asteroids, player):
                 
 def main():
     running = True
+    pg.time.set_timer(rocket_refill_timer, ROCKET_REFILL_TIME)
+    pg.time.set_timer(player_repair_timer, PLAYER_REPAIR_TIME)
 
     gamepad = pg.joystick.Joystick(0)
     gamepad.init()
@@ -90,6 +95,10 @@ def main():
             if event.type == pg.JOYBUTTONDOWN:
                 if event.button == BUTTON_A:
                     player.fire()
+            if event.type == rocket_refill_timer:
+                player.rockets += 1
+            if event.type == player_repair_timer and player.health < 100:
+                player.health += 1
 
         player.update()
                 
