@@ -9,6 +9,7 @@ class Asteroid(Movable):
     def __init__(self, init_pos):
         super().__init__(init_pos, Vec(rd.randint(1, 10), rd.randint(1, 10)).normalize())
         self.speed = 2
+        self.radius = 27
         path = join('assets', 'asteroids', 'medium')
         self.images = [pg.image.load(join(path, "a10000.png")),
                        pg.image.load(join(path, "a10001.png")),
@@ -46,11 +47,12 @@ class Asteroid(Movable):
             self.direction.y *= -1
     
     def draw(self):
+        if DEBUG_MODE:
+            pg.draw.circle(self.window, GREEN, self.pos, 3)
+            pg.draw.circle(self.window, RED, self.rect.center, self.radius)
+            pg.draw.circle(self.window, BLUE, self.rect.bottomright, 3)
+            
         self.window.blit(self.images[int(self.animation_count) % 15], self.pos)
         self.rect = self.images[int(self.animation_count) % 15].get_rect(x=self.pos.x, y=self.pos.y)
-        self.animation_count += 0.1
-        if SHOW_POSITIONS:
-            pg.draw.circle(self.window, TEXT_COLOR_RED, self.pos, 3)
-            pg.draw.circle(self.window, TEXT_COLOR_RED, self.rect.center, 3)
-            pg.draw.circle(self.window, TEXT_COLOR_RED, self.rect.bottomright, 3)
+        self.animation_count += 0.1            
         

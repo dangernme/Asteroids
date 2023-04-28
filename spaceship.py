@@ -23,6 +23,7 @@ class Spaceship(Movable):
         self.gamepad = pg.joystick.Joystick(0)
         self.gamepad.init()
         self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
+        self.radius = 15
 
     def update_ship_image(self):
         ship_count = 0
@@ -65,6 +66,7 @@ class Spaceship(Movable):
         if self.rockets > 0 and len(self.active_rockets) < MAX_ACTIVE_ROCKETS: 
             self.rockets -= 1
             self.active_rockets.append(Rocket(self.pos.copy(), self.direction.copy()))
+        print(self.radius)
 
     def update(self):
         self.acc = Vec(0, 0)
@@ -98,8 +100,8 @@ class Spaceship(Movable):
             self.health = 0
 
     def draw(self):
+        if DEBUG_MODE:
+            pg.draw.circle(self.window, GREEN, self.pos, self.radius)
+            pg.draw.circle(self.window, RED, self.rect.center, 3)
+            pg.draw.circle(self.window, BLUE, self.rect.bottomright, 3)
         self.window.blit(self.image, (self.pos.x - self.image.get_width() // 2, self.pos.y - self.image.get_height() // 2))
-        if SHOW_POSITIONS:
-            pg.draw.circle(self.window, TEXT_COLOR_RED, self.pos, 3)
-            pg.draw.circle(self.window, TEXT_COLOR_RED, self.rect.center, 3)
-            pg.draw.circle(self.window, TEXT_COLOR_RED, self.rect.bottomright, 3)

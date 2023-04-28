@@ -27,7 +27,7 @@ def draw(bg_image, player, active_rockets, asteroids):
     window.blit(font.render(f"Health {player.health}", False, TEXT_COLOR), (10, 35))
     
     if player.rockets == 0:
-        window.blit(font.render(f"Rockets {player.rockets}", False, TEXT_COLOR_RED), (10, 65))
+        window.blit(font.render(f"Rockets {player.rockets}", False, RED), (10, 65))
     else:
         window.blit(font.render(f"Rockets {player.rockets}", False, TEXT_COLOR), (10, 65))
        
@@ -68,7 +68,6 @@ def main():
         for asteroid in asteroids:
             asteroid.update()
             if pg.sprite.collide_circle(player, asteroid):
-                
                 player.health -= 1
             
         for active_rocket in player.active_rockets:

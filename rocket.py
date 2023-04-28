@@ -35,10 +35,10 @@ class Rocket(Movable):
         self.rect = self.rocket_tiles[index].get_rect(center=self.pos)
         
         self.window.blit(image, self.pos)
-        if SHOW_POSITIONS:
-            pg.draw.circle(self.window, TEXT_COLOR_RED, self.pos, 3)
-            pg.draw.circle(self.window, TEXT_COLOR_RED, self.rect.center, 3)
-            pg.draw.circle(self.window, TEXT_COLOR_RED, self.rect.bottomright, 3)
+        if DEBUG_MODE:
+            pg.draw.circle(self.window, GREEN, self.pos, 3)
+            pg.draw.circle(self.window, RED, self.rect.center, 3)
+            pg.draw.circle(self.window, BLUE, self.rect.bottomright, 3)
                 
     def update(self):
         self.pos += self.speed * self.direction.normalize()
