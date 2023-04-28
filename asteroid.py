@@ -7,7 +7,7 @@ Vec = pg.math.Vector2
 
 class Asteroid(Movable):
     def __init__(self, init_pos):
-        super().__init__(init_pos, Vec(rd.randint(1, 10), rd.randint(1, 10)).normalize())
+        super().__init__(init_pos, Vec(rd.randint(-10, 10), rd.randint(1, 10)).normalize())
         self.speed = 2
         self.radius = 27
         path = join('assets', 'asteroids', 'medium')

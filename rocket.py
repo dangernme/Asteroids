@@ -15,13 +15,11 @@ class Rocket(Movable):
         self.images.append(pg.transform.rotate(self.rocket_tiles[0], self.direction.angle_to(Vec(0, -1))))
         self.images.append(pg.transform.rotate(self.rocket_tiles[1], self.direction.angle_to(Vec(0, -1))))
         self.images.append(pg.transform.rotate(self.rocket_tiles[2], self.direction.angle_to(Vec(0, -1))))
-        self.out_of_limits = False
         self.rect = self.rocket_tiles[0].get_rect(center=self.pos)
         self.count = 0
-        self.pos -= (self.rect.width // 2, self.rect.height // 2)
-        self.rect = self.rocket_tiles[0].get_rect(x=self.pos.x, y=self.pos.y)
+        self.pos -= (self.rect.width // 2, self.rect.height // 2) # Correct start position of rocket to ships center
         self.interval = 0
-        self.speed = 4
+        self.speed = 10
         self.radius = 5
 
     def draw(self):
@@ -42,10 +40,5 @@ class Rocket(Movable):
             pg.draw.circle(self.window, BLUE, self.rect.bottomright, 3)
                 
     def update(self):
-        self.pos += self.speed * self.direction.normalize()
-                
-        if self.pos.x < TEXT_WIDTH or self.pos.x > WIDTH or self.pos.y < 0 or self.pos.y > HEIGHT:
-            self.out_of_limits = True      
+        self.pos += self.speed * self.direction.normalize()    
         
-        
-

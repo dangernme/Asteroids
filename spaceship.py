@@ -66,7 +66,6 @@ class Spaceship(Movable):
         if self.rockets > 0 and len(self.active_rockets) < MAX_ACTIVE_ROCKETS: 
             self.rockets -= 1
             self.active_rockets.append(Rocket(self.pos.copy(), self.direction.copy()))
-        print(self.radius)
 
     def update(self):
         self.acc = Vec(0, 0)
@@ -101,7 +100,7 @@ class Spaceship(Movable):
 
     def draw(self):
         if DEBUG_MODE:
-            pg.draw.circle(self.window, GREEN, self.pos, self.radius)
-            pg.draw.circle(self.window, RED, self.rect.center, 3)
+            pg.draw.circle(self.window, GREEN, self.pos, 3)
+            pg.draw.circle(self.window, RED, self.rect.center, self.radius)
             pg.draw.circle(self.window, BLUE, self.rect.bottomright, 3)
         self.window.blit(self.image, (self.pos.x - self.image.get_width() // 2, self.pos.y - self.image.get_height() // 2))
