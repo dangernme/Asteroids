@@ -7,8 +7,6 @@ from asteroid import Asteroid
 Vec = pg.math.Vector2
 import random as rd
 
-# TODO
-# Collition circle of player ship is still outside of the ship
 
 pg.init()
 pg.font.init()
@@ -83,8 +81,11 @@ def main():
                  Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT)))]
         
     while running:
-        clock.tick(FPS)
-             
+        if DEBUG_MODE:
+            clock.tick(int(FPS/2))
+        else:
+            clock.tick(FPS) 
+            
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False

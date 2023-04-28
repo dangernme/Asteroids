@@ -15,12 +15,12 @@ class Rocket(Movable):
         self.images.append(pg.transform.rotate(self.rocket_tiles[0], self.direction.angle_to(Vec(0, -1))))
         self.images.append(pg.transform.rotate(self.rocket_tiles[1], self.direction.angle_to(Vec(0, -1))))
         self.images.append(pg.transform.rotate(self.rocket_tiles[2], self.direction.angle_to(Vec(0, -1))))
-        self.rect = self.rocket_tiles[0].get_rect(center=self.pos)
+        self.rect = self.rocket_tiles[0].get_rect(x=self.pos.x, y=self.pos.y)
         self.count = 0
         self.pos -= (self.rect.width // 2, self.rect.height // 2) # Correct start position of rocket to ships center
         self.interval = 0
         self.speed = 10
-        self.radius = 5
+        self.radius = 4
 
     def draw(self):
         if self.interval == 10:
@@ -31,7 +31,7 @@ class Rocket(Movable):
         
         index = self.count % 3
         image = self.images[index]
-        self.rect = self.rocket_tiles[index].get_rect(center=self.pos)
+        self.rect = self.rocket_tiles[index].get_rect(x=self.pos.x, y = self.pos.y)
         
         self.window.blit(image, self.pos)
         if DEBUG_MODE:

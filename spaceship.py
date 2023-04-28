@@ -40,7 +40,7 @@ class Spaceship(Movable):
             ship_count = 3
             
         self.image = pg.transform.rotate(self.clean_images[ship_count], self.direction.angle_to(Vec(0, -1)))
-        self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
+        self.rect = self.image.get_rect(center=self.pos)
 
     def handle_border_collition(self):
         if self.pos.x < TEXT_WIDTH:
