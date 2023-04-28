@@ -26,6 +26,10 @@ class Spaceship(Movable):
         self.radius = 15
         self.points = 0
         self.vel = Vec(0, 0)
+        pg.mixer.init()
+        pg.mixer.fadeout(10)
+        self.pew_sound = pg.mixer.Sound(join('assets', 'Sounds', "pew.wav"))
+        self.pew_sound.set_volume(0.1)
 
     def update_ship_image(self):
         ship_count = 0
@@ -67,6 +71,7 @@ class Spaceship(Movable):
     def fire(self):
         if self.rockets > 0 and len(self.active_rockets) < MAX_ACTIVE_ROCKETS: 
             self.rockets -= 1
+            self.pew_sound.play()
             self.active_rockets.append(Rocket(self.pos.copy(), self.direction.copy()))
 
     def update(self):
