@@ -11,6 +11,8 @@ import random as rd
 pg.init()
 pg.font.init()
 pg.joystick.init()
+pg.mixer.init()
+pg.mixer.fadeout(10)
 font = pg.font.SysFont('Comic Sans MS', TEXT_SIZE)
 window = pg.display.set_mode(SIZE)
 clock = pg.time.Clock()
@@ -69,6 +71,8 @@ def main():
     pg.time.set_timer(rocket_refill_timer, ROCKET_REFILL_TIME)
     pg.time.set_timer(player_repair_timer, PLAYER_REPAIR_TIME)
 
+    pew_sound = pg.mixer.Sound(join('assets', 'Sounds', "pew.wav"))
+    pew_sound.set_volume(0.1)
     gamepad = pg.joystick.Joystick(0)
     gamepad.init()
     bg_image = pg.transform.scale(pg.image.load(join('assets', 'Background', 'Blue_Nebula_01.png')), \
@@ -92,9 +96,11 @@ def main():
                 break
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_LCTRL:
+                    pew_sound.play()
                     player.fire()
             if event.type == pg.JOYBUTTONDOWN:
                 if event.button == BUTTON_A:
+                    pew_sound.play()
                     player.fire()
             if event.type == rocket_refill_timer:
                 player.rockets += 1

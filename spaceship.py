@@ -10,10 +10,10 @@ Vec = pg.math.Vector2
 class Spaceship(Movable):
     def __init__(self, init_pos):
         super().__init__(init_pos, Vec(rd.randint(1, 10), rd.randint(1, 10)).normalize())
-        self.clean_images = [pg.image.load(join('assets', join('Ships', 'Main Ship Full health.png'))),
-                            pg.image.load(join('assets', join('Ships', 'Main Ship Slight damage.png'))),
-                            pg.image.load(join('assets', join('Ships', 'Main Ship Damaged.png'))),
-                            pg.image.load(join('assets', join('Ships', 'Main Ship Very damaged.png')))]
+        self.clean_images = [pg.image.load(join('assets', join('Ships', 'Ship Full health.png'))),
+                            pg.image.load(join('assets', join('Ships', 'Ship Slight damage.png'))),
+                            pg.image.load(join('assets', join('Ships', 'Ship Damaged.png'))),
+                            pg.image.load(join('assets', join('Ships', 'Ship Very damaged.png')))]
         self.image = self.clean_images[0]
         self.health = 100
         self.rockets = 50
