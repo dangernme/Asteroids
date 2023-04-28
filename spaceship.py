@@ -17,13 +17,15 @@ class Spaceship(Movable):
         self.image = self.clean_images[0]
         self.health = 100
         self.rockets = 50
-        self.acc_lim = 0.5
+        self.speed = 0.5
         self.acc = Vec(0, 0)
         self.active_rockets = []
         self.gamepad = pg.joystick.Joystick(0)
         self.gamepad.init()
         self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
         self.radius = 15
+        self.points = 0
+        self.vel = Vec(0, 0)
 
     def update_ship_image(self):
         ship_count = 0
@@ -81,7 +83,7 @@ class Spaceship(Movable):
         
         # handle movement
         if keys[pg.K_UP] or axis_y < -0.5:
-            self.acc += self.direction * self.acc_lim
+            self.acc += self.direction * self.speed
         if keys[pg.K_DOWN] or axis_y > 0.5:  
             self.acc += self.vel * FRICTION * 2
         else:
@@ -92,7 +94,7 @@ class Spaceship(Movable):
 
         self.handle_border_collition()
         if not DEBUG_MODE:
-            self.acc_lim = self.health / 200
+            self.speed = self.health / 200
         self.update_ship_image()
         
         if self.health <= 0:

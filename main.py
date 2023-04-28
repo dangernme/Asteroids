@@ -7,6 +7,8 @@ from asteroid import Asteroid
 Vec = pg.math.Vector2
 import random as rd
 
+# TODO
+# Collition circle of player ship is still outside of the ship
 
 pg.init()
 pg.font.init()
@@ -30,14 +32,15 @@ def draw(bg_image, player, active_rockets, asteroids):
     # Draw text area    
     pg.draw.rect(window, (50,50,50), pg.Rect(0,0, TEXT_WIDTH, HEIGHT))
                     
-    window.blit(font.render(f"Max Speed {player.acc_lim * 100}", False, TEXT_COLOR), (10, 5))
+    window.blit(font.render(f"Max Speed {player.speed * 100:.0f}", False, TEXT_COLOR), (10, 5))
     window.blit(font.render(f"Health {player.health}", False, TEXT_COLOR), (10, 35))
     
     if player.rockets == 0:
         window.blit(font.render(f"Rockets {player.rockets}", False, RED), (10, 65))
     else:
         window.blit(font.render(f"Rockets {player.rockets}", False, TEXT_COLOR), (10, 65))
-    
+        
+    window.blit(font.render(f"Points {player.points}", False, TEXT_COLOR), (10, 95))
     pg.display.update()
     
 def generate_new_asteroid(asteroids):
@@ -57,6 +60,7 @@ def handle_asteroids(asteroids, player):
             if pg.sprite.collide_circle(active_rocket, asteroid):
                 asteroids.remove(asteroid)
                 player.active_rockets.remove(active_rocket)
+                player.points += 1
                 generate_new_asteroid(asteroids)
                 
 def main():
