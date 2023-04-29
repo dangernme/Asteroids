@@ -1,19 +1,21 @@
 import sys
 from os.path import join
+import numpy as np
 import pygame as pg
 from settings import *
 from spaceship import Spaceship
 from munition import Munition
 from asteroid import Asteroid
+from repair_pack import Medi
 Vec = pg.math.Vector2
 import random as rd
 
 # TODO
-# Health bar
 
 
 pg.init()
 pg.font.init()
+pg.mixer.init()
 pg.joystick.init()
 font = pg.font.SysFont('Comic Sans MS', TEXT_SIZE)
 window = pg.display.set_mode(SIZE)
@@ -23,8 +25,9 @@ pg.display.set_caption(TITLE)
 rocket_refill_timer = pg.USEREVENT
 player_repair_timer = pg.USEREVENT + 1
 munition_respawn_timer = pg.USEREVENT + 2
+medi_respawn_timer = pg.USEREVENT + 3
 
-def draw(bg_image, player, active_rockets, asteroids, spawned_munition):
+def draw(bg_image, player, active_rockets, asteroids, spawned_munition, spawed_medis):
     window.blit(bg_image, (TEXT_WIDTH, 0)) # Draw background
     
     player.draw()
@@ -37,6 +40,9 @@ def draw(bg_image, player, active_rockets, asteroids, spawned_munition):
         
     for munition in spawned_munition:
         munition.draw()
+        
+    for medis in spawed_medis:
+        medis.draw()
     
     # Draw text area    
     pg.draw.rect(window, (50,50,50), pg.Rect(0,0, TEXT_WIDTH, HEIGHT))
@@ -51,8 +57,17 @@ def draw(bg_image, player, active_rockets, asteroids, spawned_munition):
         
     window.blit(font.render(f"Points {player.points}", False, TEXT_COLOR), (10, 95))
     window.blit(font.render(f"Time {pg.time.get_ticks()/ 1000:.1f}", False, TEXT_COLOR), (10, 125))
+
+    # Health bar    
+    hb_width = 700
+    h_width = scale_range(player.health, 0, 100, 0, hb_width - 4)
+    pg.draw.rect(window, BLUE, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - hb_width // 2, 10, hb_width, 20)) 
+    pg.draw.rect(window, GREEN, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - (hb_width // 2) + 2, 12, h_width, 16)) 
     
     pg.display.update()
+    
+def scale_range (input, old_min, old_max, new_min, new_max):
+    return ( (input - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min
     
 def generate_new_asteroid(asteroids):
     random_start = rd.randint(0,4)
@@ -80,12 +95,16 @@ def handle_asteroids(asteroids, player):
             asteroids.remove(asteroid)
             player.health -= 10
             generate_new_asteroid(asteroids)
-                
+        
 def main():
     running = True
     pg.time.set_timer(rocket_refill_timer, ROCKET_REFILL_TIME)
     pg.time.set_timer(player_repair_timer, PLAYER_REPAIR_TIME)
     pg.time.set_timer(munition_respawn_timer, MUNITION_RESPAWN_TIME)
+    pg.time.set_timer(medi_respawn_timer, MEDI_RESPAWN_TIME)
+    pg.mixer.fadeout(10)
+    ding_sound = pg.mixer.Sound(join('assets', 'Sounds', "ding.wav"))
+    ding_sound.set_volume(0.1)
 
     gamepad = pg.joystick.Joystick(0)
     gamepad.init()
@@ -94,11 +113,11 @@ def main():
     
     player = Spaceship(Vec(TEXT_WIDTH + GAME_WIDTH // 2, HEIGHT // 2))
     asteroids = [Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT)))]
+    spawned_munition = [Munition(Vec(rd.randint(TEXT_WIDTH - 100, WIDTH - 100), rd.randint(100, HEIGHT -100)))]
+    spawned_medis = [Medi(Vec(rd.randint(TEXT_WIDTH - 100, WIDTH - 100), rd.randint(100, HEIGHT -100)))]
     
     for i in range(NUM_ASTEROIDS):
         asteroids.append(Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
-        
-    spawned_munition = [Munition(Vec(rd.randint(TEXT_WIDTH - 100, WIDTH - 100), rd.randint(100, HEIGHT -100)))]
         
     while running:
         if DEBUG_MODE:
@@ -122,16 +141,28 @@ def main():
                 player.health += 1
             if event.type == munition_respawn_timer and len(spawned_munition) < MAX_SPAWNED_MUNITION:
                 spawned_munition.append(Munition(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+            if event.type == medi_respawn_timer and len(spawned_medis) < MAX_SPAWNED_MEDIS:
+                spawned_medis.append(Medi(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
 
         player.update()
                           
         for munition in spawned_munition:
             if pg.sprite.collide_circle(player, munition):
+                ding_sound.play()
                 if player.rockets + munition.amount > MAX_SHIP_ROCKETS:
                     player.rockets += MAX_SHIP_ROCKETS - player.rockets
                 else:
                     player.rockets += munition.amount
                     spawned_munition.remove(munition)
+                    
+        for medi in spawned_medis:
+            if pg.sprite.collide_circle(player, medi):
+                ding_sound.play()
+                if player.health + medi.healh > 100:
+                    player.health += 100 - player.health
+                else:
+                    player.health += medi.healh
+                    spawned_medis.remove(medi)
             
         for active_rocket in player.active_rockets:
             active_rocket.update()
@@ -140,7 +171,7 @@ def main():
         
         handle_asteroids(asteroids, player)
            
-        draw(bg_image, player, player.active_rockets, asteroids, spawned_munition)
+        draw(bg_image, player, player.active_rockets, asteroids, spawned_munition, spawned_medis)
         
     pg.joystick.quit()
     pg.quit()
