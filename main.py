@@ -18,6 +18,7 @@ pg.font.init()
 pg.mixer.init()
 pg.joystick.init()
 font = pg.font.SysFont('Comic Sans MS', TEXT_SIZE)
+big_font = pg.font.SysFont('Comic Sans MS', TEXT_SIZE * 5)
 window = pg.display.set_mode(SIZE)
 clock = pg.time.Clock()
 pg.display.set_caption(TITLE)
@@ -26,6 +27,7 @@ rocket_refill_timer = pg.USEREVENT
 player_repair_timer = pg.USEREVENT + 1
 munition_respawn_timer = pg.USEREVENT + 2
 medi_respawn_timer = pg.USEREVENT + 3
+game_end_timer = pg.USEREVENT + 4
 
 def draw(bg_image, player, active_rockets, asteroids, spawned_munition, spawed_medis):
     window.blit(bg_image, (TEXT_WIDTH, 0)) # Draw background
@@ -56,7 +58,7 @@ def draw(bg_image, player, active_rockets, asteroids, spawned_munition, spawed_m
         window.blit(font.render(f"Rockets {player.rockets}", False, TEXT_COLOR), (10, 65))
         
     window.blit(font.render(f"Points {player.points}", False, TEXT_COLOR), (10, 95))
-    window.blit(font.render(f"Time {pg.time.get_ticks()/ 1000:.1f}", False, TEXT_COLOR), (10, 125))
+    window.blit(font.render(f"Time {((GAME_TIME / 1000) - pg.time.get_ticks() / 1000) + 0.1:.1f}", False, TEXT_COLOR), (10, 125))
 
     # Health bar    
     hb_width = 700
@@ -100,10 +102,13 @@ def handle_asteroids(asteroids, player, crash_sound):
         
 def main():
     running = True
+    game_over = False
+    
     pg.time.set_timer(rocket_refill_timer, ROCKET_REFILL_TIME)
     pg.time.set_timer(player_repair_timer, PLAYER_REPAIR_TIME)
     pg.time.set_timer(munition_respawn_timer, MUNITION_RESPAWN_TIME)
     pg.time.set_timer(medi_respawn_timer, MEDI_RESPAWN_TIME)
+    pg.time.set_timer(game_end_timer, GAME_TIME)
     
     # Sound
     pg.mixer.fadeout(10)
@@ -111,7 +116,7 @@ def main():
     ding_sound.set_volume(0.1)
     crash_sound = pg.mixer.Sound(join('assets', 'Sounds', "crash.wav"))
     crash_sound.set_volume(0.1)
-    music = pg.mixer.music.load(join('assets', 'Sounds', "space-chase.mp3"))
+    pg.mixer.music.load(join('assets', 'Sounds', "space-chase.mp3"))
     pg.mixer.music.play(-1, 0.0)
     pg.mixer.music.set_volume(0.5)
 
@@ -129,58 +134,73 @@ def main():
         asteroids.append(Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
         
     while running:
+
         if DEBUG_MODE:
             clock.tick(int(FPS/2))
         else:
             clock.tick(FPS) 
             
+            
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
                 break
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_LCTRL:
-                    player.fire()
-            if event.type == pg.JOYBUTTONDOWN:
-                if event.button == BUTTON_A:
-                    player.fire()
-            if event.type == rocket_refill_timer:
-                player.rockets += 1
-            if event.type == player_repair_timer and player.health < 100:
-                player.health += 1
-            if event.type == munition_respawn_timer and len(spawned_munition) < MAX_SPAWNED_MUNITION:
-                spawned_munition.append(Munition(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
-            if event.type == medi_respawn_timer and len(spawned_medis) < MAX_SPAWNED_MEDIS:
-                spawned_medis.append(Medi(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
-
-        player.update()
-                          
-        for munition in spawned_munition:
-            if pg.sprite.collide_circle(player, munition):
-                ding_sound.play()
-                if player.rockets + munition.amount > MAX_SHIP_ROCKETS:
-                    player.rockets += MAX_SHIP_ROCKETS - player.rockets
-                else:
-                    player.rockets += munition.amount
-                    spawned_munition.remove(munition)
-                    
-        for medi in spawned_medis:
-            if pg.sprite.collide_circle(player, medi):
-                ding_sound.play()
-                if player.health + medi.healh > 100:
-                    player.health += 100 - player.health
-                else:
-                    player.health += medi.healh
-                    spawned_medis.remove(medi)
+            if not game_over: 
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_LCTRL:
+                        player.fire()
+                if event.type == pg.JOYBUTTONDOWN:
+                    if event.button == BUTTON_A:
+                        player.fire()
+                if event.type == rocket_refill_timer:
+                    player.rockets += 1
+                if event.type == player_repair_timer and player.health < 100:
+                    player.health += 1
+                if event.type == munition_respawn_timer and len(spawned_munition) < MAX_SPAWNED_MUNITION:
+                    spawned_munition.append(Munition(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                if event.type == medi_respawn_timer and len(spawned_medis) < MAX_SPAWNED_MEDIS:
+                    spawned_medis.append(Medi(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                if event.type == game_end_timer:
+                    game_over = True
+                
+        if not game_over:  
+            player.update()
+            if player.health <= 0:
+                game_over = True
+                            
+            for munition in spawned_munition:
+                if pg.sprite.collide_circle(player, munition):
+                    ding_sound.play()
+                    if player.rockets + munition.amount > MAX_SHIP_ROCKETS:
+                        player.rockets += MAX_SHIP_ROCKETS - player.rockets
+                    else:
+                        player.rockets += munition.amount
+                        spawned_munition.remove(munition)
+                        
+            for medi in spawned_medis:
+                if pg.sprite.collide_circle(player, medi):
+                    ding_sound.play()
+                    if player.health + medi.healh > 100:
+                        player.health += 100 - player.health
+                    else:
+                        player.health += medi.healh
+                        spawned_medis.remove(medi)
+                
+            for active_rocket in player.active_rockets:
+                active_rocket.update()
+                if active_rocket.pos.x < TEXT_WIDTH or active_rocket.pos.x > WIDTH or active_rocket.pos.y < 0 or active_rocket.pos.y > HEIGHT:
+                    player.active_rockets.remove(active_rocket)
             
-        for active_rocket in player.active_rockets:
-            active_rocket.update()
-            if active_rocket.pos.x < TEXT_WIDTH or active_rocket.pos.x > WIDTH or active_rocket.pos.y < 0 or active_rocket.pos.y > HEIGHT:
-                player.active_rockets.remove(active_rocket)
-        
-        handle_asteroids(asteroids, player, crash_sound)
-           
-        draw(bg_image, player, player.active_rockets, asteroids, spawned_munition, spawned_medis)
+            handle_asteroids(asteroids, player, crash_sound)
+            
+            draw(bg_image, player, player.active_rockets, asteroids, spawned_munition, spawned_medis)
+            
+        else: # Game over
+            pg.mixer.music.stop()
+            window.blit(big_font.render(f"Game Over", False, RED), (500, 300))
+            window.blit(big_font.render(f"  Points:{player.points} ", False, RED), (500, 400))
+            pg.display.update()
+            
         
     pg.joystick.quit()
     pg.quit()
