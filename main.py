@@ -117,7 +117,7 @@ def main():
 
     gamepad = pg.joystick.Joystick(0)
     gamepad.init()
-    bg_image = pg.transform.scale(pg.image.load(join('assets', 'Background', 'Blue_Nebula_01.png')), \
+    bg_image = pg.transform.scale(pg.image.load(join('assets', 'background.png')), \
         (WIDTH - TEXT_WIDTH, HEIGHT))
     
     player = Spaceship(Vec(TEXT_WIDTH + GAME_WIDTH // 2, HEIGHT // 2))

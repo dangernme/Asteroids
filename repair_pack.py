@@ -7,7 +7,7 @@ Vec = pg.math.Vector2
 class Medi(pg.sprite.Sprite):
     def __init__(self, init_pos):
         pg.sprite.Sprite.__init__(self)
-        self.image = pg.image.load(join('assets', 'hearts', 'heart 32x32.png'))
+        self.image = pg.image.load(join('assets', 'heart.png'))
         self.pos = init_pos
         self.window = pg.display.get_surface()
         self.healh = rd.randint(1, 10)
