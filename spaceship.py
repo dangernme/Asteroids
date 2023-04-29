@@ -81,9 +81,9 @@ class Spaceship(Movable):
 
         # handle direction
         if keys[pg.K_LEFT] or axis_x < -0.5:
-            self.direction = self.direction.rotate(-5).normalize()
+            self.direction = self.direction.rotate(-3).normalize()
         if keys[pg.K_RIGHT] or axis_x > 0.5:
-            self.direction = self.direction.rotate(+5).normalize()
+            self.direction = self.direction.rotate(+3).normalize()
         
         # handle movement
         if keys[pg.K_UP] or axis_y < -0.5:

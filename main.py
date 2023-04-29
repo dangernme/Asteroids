@@ -197,8 +197,10 @@ def main():
             
         else: # Game over
             pg.mixer.music.stop()
-            window.blit(big_font.render(f"Game Over", False, RED), (500, 300))
-            window.blit(big_font.render(f"  Points:{player.points} ", False, RED), (500, 400))
+            window.blit(big_font.render(f"Game Over", False, RED), (550, 200))
+            window.blit(big_font.render(f"Points:{player.points} ", False, RED), (590, 300))
+            window.blit(big_font.render(f"Health:{player.health} ", False, RED), (510, 400))
+            window.blit(big_font.render(f"Total Points:{player.points + player.health//15} ", False, RED), (470, 500))
             pg.display.update()
             
         
