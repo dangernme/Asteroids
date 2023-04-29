@@ -31,7 +31,7 @@ class Spaceship(Movable):
         self.pew_sound = pg.mixer.Sound(join('assets', 'Sounds', "pew.wav"))
         self.pew_sound.set_volume(0.1)
 
-    def update_ship_image(self):
+    def select_ship_image(self):
         ship_count = 0
 
         if self.health > 80:
@@ -42,9 +42,8 @@ class Spaceship(Movable):
             ship_count = 2
         else:
             ship_count = 3
-            
-        self.image = pg.transform.rotate(self.clean_images[ship_count], self.direction.angle_to(Vec(0, -1)))
-        self.rect = self.image.get_rect(center=self.pos)
+        
+        return ship_count
 
     def handle_border_collition(self):
         if self.pos.x < TEXT_WIDTH:
@@ -100,7 +99,10 @@ class Spaceship(Movable):
         self.handle_border_collition()
         if not DEBUG_MODE:
             self.speed = self.health / 200
-        self.update_ship_image()
+            
+        self.image = pg.transform.rotate(self.clean_images[self.select_ship_image()], self.direction.angle_to(Vec(0, -1)))
+        self.rect = self.image.get_rect(center=self.pos)
+
         
         if self.health <= 0:
             self.health = 0

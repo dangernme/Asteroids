@@ -3,9 +3,13 @@ from os.path import join
 import pygame as pg
 from settings import *
 from spaceship import Spaceship
+from munition import Munition
 from asteroid import Asteroid
 Vec = pg.math.Vector2
 import random as rd
+
+# TODO
+# Health bar
 
 
 pg.init()
@@ -18,8 +22,9 @@ pg.display.set_caption(TITLE)
 
 rocket_refill_timer = pg.USEREVENT
 player_repair_timer = pg.USEREVENT + 1
+munition_respawn_timer = pg.USEREVENT + 2
 
-def draw(bg_image, player, active_rockets, asteroids):
+def draw(bg_image, player, active_rockets, asteroids, spawned_munition):
     window.blit(bg_image, (TEXT_WIDTH, 0)) # Draw background
     
     player.draw()
@@ -29,6 +34,9 @@ def draw(bg_image, player, active_rockets, asteroids):
     
     for asteroid in asteroids: 
         asteroid.draw()
+        
+    for munition in spawned_munition:
+        munition.draw()
     
     # Draw text area    
     pg.draw.rect(window, (50,50,50), pg.Rect(0,0, TEXT_WIDTH, HEIGHT))
@@ -36,12 +44,14 @@ def draw(bg_image, player, active_rockets, asteroids):
     window.blit(font.render(f"Max Speed {player.speed * 100:.0f}", False, TEXT_COLOR), (10, 5))
     window.blit(font.render(f"Health {player.health} %", False, TEXT_COLOR), (10, 35))
     
-    if player.rockets == 0:
+    if player.rockets == 0 or player.rockets >= MAX_SHIP_ROCKETS:
         window.blit(font.render(f"Rockets {player.rockets}", False, RED), (10, 65))
     else:
         window.blit(font.render(f"Rockets {player.rockets}", False, TEXT_COLOR), (10, 65))
         
     window.blit(font.render(f"Points {player.points}", False, TEXT_COLOR), (10, 95))
+    window.blit(font.render(f"Time {pg.time.get_ticks()/ 1000:.1f}", False, TEXT_COLOR), (10, 125))
+    
     pg.display.update()
     
 def generate_new_asteroid(asteroids):
@@ -64,10 +74,18 @@ def handle_asteroids(asteroids, player):
                 player.points += 1
                 generate_new_asteroid(asteroids)
                 
+    for asteroid in asteroids:
+        asteroid.update()
+        if pg.sprite.collide_circle(player, asteroid):
+            asteroids.remove(asteroid)
+            player.health -= 10
+            generate_new_asteroid(asteroids)
+                
 def main():
     running = True
     pg.time.set_timer(rocket_refill_timer, ROCKET_REFILL_TIME)
     pg.time.set_timer(player_repair_timer, PLAYER_REPAIR_TIME)
+    pg.time.set_timer(munition_respawn_timer, MUNITION_RESPAWN_TIME)
 
     gamepad = pg.joystick.Joystick(0)
     gamepad.init()
@@ -79,6 +97,8 @@ def main():
     
     for i in range(NUM_ASTEROIDS):
         asteroids.append(Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
+        
+    spawned_munition = [Munition(Vec(rd.randint(TEXT_WIDTH - 100, WIDTH - 100), rd.randint(100, HEIGHT -100)))]
         
     while running:
         if DEBUG_MODE:
@@ -100,16 +120,18 @@ def main():
                 player.rockets += 1
             if event.type == player_repair_timer and player.health < 100:
                 player.health += 1
+            if event.type == munition_respawn_timer and len(spawned_munition) < MAX_SPAWNED_MUNITION:
+                spawned_munition.append(Munition(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
 
         player.update()
-                
-        for asteroid in asteroids:
-            asteroid.update()
-            if pg.sprite.collide_circle(player, asteroid):
-                asteroids.remove(asteroid)
-                player.health -= 10
-                generate_new_asteroid(asteroids)
-         
+                          
+        for munition in spawned_munition:
+            if pg.sprite.collide_circle(player, munition):
+                if player.rockets + munition.amount > MAX_SHIP_ROCKETS:
+                    player.rockets += MAX_SHIP_ROCKETS - player.rockets
+                else:
+                    player.rockets += munition.amount
+                    spawned_munition.remove(munition)
             
         for active_rocket in player.active_rockets:
             active_rocket.update()
@@ -118,7 +140,7 @@ def main():
         
         handle_asteroids(asteroids, player)
            
-        draw(bg_image, player, player.active_rockets, asteroids)
+        draw(bg_image, player, player.active_rockets, asteroids, spawned_munition)
         
     pg.joystick.quit()
     pg.quit()
