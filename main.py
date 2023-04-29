@@ -80,10 +80,11 @@ def generate_new_asteroid(asteroids):
     else: #bottom
         asteroids.append(Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), HEIGHT)))
     
-def handle_asteroids(asteroids, player):
+def handle_asteroids(asteroids, player, crash_sound):
     for active_rocket in player.active_rockets:        
         for asteroid in asteroids:
             if pg.sprite.collide_circle(active_rocket, asteroid):
+                crash_sound.play()
                 asteroids.remove(asteroid)
                 player.active_rockets.remove(active_rocket)
                 player.points += 1
@@ -92,6 +93,7 @@ def handle_asteroids(asteroids, player):
     for asteroid in asteroids:
         asteroid.update()
         if pg.sprite.collide_circle(player, asteroid):
+            crash_sound.play()
             asteroids.remove(asteroid)
             player.health -= 10
             generate_new_asteroid(asteroids)
@@ -102,9 +104,16 @@ def main():
     pg.time.set_timer(player_repair_timer, PLAYER_REPAIR_TIME)
     pg.time.set_timer(munition_respawn_timer, MUNITION_RESPAWN_TIME)
     pg.time.set_timer(medi_respawn_timer, MEDI_RESPAWN_TIME)
+    
+    # Sound
     pg.mixer.fadeout(10)
     ding_sound = pg.mixer.Sound(join('assets', 'Sounds', "ding.wav"))
     ding_sound.set_volume(0.1)
+    crash_sound = pg.mixer.Sound(join('assets', 'Sounds', "crash.wav"))
+    crash_sound.set_volume(0.1)
+    music = pg.mixer.music.load(join('assets', 'Sounds', "space-chase.mp3"))
+    pg.mixer.music.play(-1, 0.0)
+    pg.mixer.music.set_volume(0.5)
 
     gamepad = pg.joystick.Joystick(0)
     gamepad.init()
@@ -169,7 +178,7 @@ def main():
             if active_rocket.pos.x < TEXT_WIDTH or active_rocket.pos.x > WIDTH or active_rocket.pos.y < 0 or active_rocket.pos.y > HEIGHT:
                 player.active_rockets.remove(active_rocket)
         
-        handle_asteroids(asteroids, player)
+        handle_asteroids(asteroids, player, crash_sound)
            
         draw(bg_image, player, player.active_rockets, asteroids, spawned_munition, spawned_medis)
         
