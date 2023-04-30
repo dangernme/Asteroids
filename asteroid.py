@@ -9,24 +9,25 @@ class Asteroid(Movable):
     def __init__(self, init_pos):
         super().__init__(init_pos, Vec(rd.randint(-10, 10), rd.randint(1, 10)).normalize())
         self.speed = rd.randint(1, 5)
+        self.damage = 10
         self.radius = 27
-        path = join('assets', 'asteroids', 'medium')
-        self.images = [pg.image.load(join(path, "a10000.png")),
-                       pg.image.load(join(path, "a10001.png")),
-                       pg.image.load(join(path, "a10002.png")),
-                       pg.image.load(join(path, "a10003.png")),
-                       pg.image.load(join(path, "a10004.png")),
-                       pg.image.load(join(path, "a10005.png")),
-                       pg.image.load(join(path, "a10006.png")),
-                       pg.image.load(join(path, "a10007.png")),
-                       pg.image.load(join(path, "a10008.png")),
-                       pg.image.load(join(path, "a10009.png")),
-                       pg.image.load(join(path, "a10010.png")),
-                       pg.image.load(join(path, "a10011.png")),
-                       pg.image.load(join(path, "a10012.png")),
-                       pg.image.load(join(path, "a10013.png")),
-                       pg.image.load(join(path, "a10014.png")),
-                       pg.image.load(join(path, "a10015.png"))]
+        self.path = join('assets', 'asteroids', 'medium')
+        self.images = [pg.image.load(join(self.path, "a10000.png")),
+                       pg.image.load(join(self.path, "a10001.png")),
+                       pg.image.load(join(self.path, "a10002.png")),
+                       pg.image.load(join(self.path, "a10003.png")),
+                       pg.image.load(join(self.path, "a10004.png")),
+                       pg.image.load(join(self.path, "a10005.png")),
+                       pg.image.load(join(self.path, "a10006.png")),
+                       pg.image.load(join(self.path, "a10007.png")),
+                       pg.image.load(join(self.path, "a10008.png")),
+                       pg.image.load(join(self.path, "a10009.png")),
+                       pg.image.load(join(self.path, "a10010.png")),
+                       pg.image.load(join(self.path, "a10011.png")),
+                       pg.image.load(join(self.path, "a10012.png")),
+                       pg.image.load(join(self.path, "a10013.png")),
+                       pg.image.load(join(self.path, "a10014.png")),
+                       pg.image.load(join(self.path, "a10015.png"))]
         self.animation_count = 0.0
         self.rect = self.images[0].get_rect(x=self.pos.x, y=self.pos.y)
         
