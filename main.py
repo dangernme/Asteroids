@@ -17,8 +17,9 @@ pg.init()
 pg.font.init()
 pg.mixer.init()
 pg.joystick.init()
-font = pg.font.SysFont('Comic Sans MS', TEXT_SIZE)
-big_font = pg.font.SysFont('Comic Sans MS', TEXT_SIZE * 5)
+small_font = pg.font.SysFont('Comic Sans MS', SMALL_TEXT_SIZE)
+medium_font = pg.font.SysFont('Comic Sans MS', MEDIUM_TEXT_SIZE)
+large_font = pg.font.SysFont('Comic Sans MS', LARGE_TEXT_SIZE)
 window = pg.display.set_mode(SIZE)
 clock = pg.time.Clock()
 pg.display.set_caption(TITLE)
@@ -49,22 +50,31 @@ def draw(bg_image, player, active_rockets, asteroids, spawned_munition, spawed_m
     # Draw text area    
     pg.draw.rect(window, (50,50,50), pg.Rect(0,0, TEXT_WIDTH, HEIGHT))
                     
-    window.blit(font.render(f"Max Speed {player.speed * 100:.0f}", False, TEXT_COLOR), (10, 5))
-    window.blit(font.render(f"Health {player.health} %", False, TEXT_COLOR), (10, 35))
+    window.blit(medium_font.render(f"Max Speed {player.speed * 100:.0f}", False, TEXT_COLOR), (10, 5))
+    window.blit(medium_font.render(f"Health {player.health} %", False, TEXT_COLOR), (10, 35))
     
     if player.rockets == 0 or player.rockets >= MAX_SHIP_ROCKETS:
-        window.blit(font.render(f"Rockets {player.rockets}", False, RED), (10, 65))
+        window.blit(medium_font.render(f"Rockets {player.rockets}", False, RED), (10, 65))
     else:
-        window.blit(font.render(f"Rockets {player.rockets}", False, TEXT_COLOR), (10, 65))
+        window.blit(medium_font.render(f"Rockets {player.rockets}", False, TEXT_COLOR), (10, 65))
         
-    window.blit(font.render(f"Points {player.points}", False, TEXT_COLOR), (10, 95))
-    window.blit(font.render(f"Time {((GAME_TIME / 1000) - pg.time.get_ticks() / 1000) + 0.1:.1f}", False, TEXT_COLOR), (10, 125))
+    window.blit(medium_font.render(f"Points {player.points}", False, TEXT_COLOR), (10, 95))
+    window.blit(medium_font.render(f"Time {((GAME_TIME / 1000) - pg.time.get_ticks() / 1000) + 0.1:.0f}", False, TEXT_COLOR), (10, 125))
 
     # Health bar    
-    hb_width = 700
-    h_width = scale_range(player.health, 0, 100, 0, hb_width - 4)
-    pg.draw.rect(window, BLUE, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - hb_width // 2, 10, hb_width, 20)) 
-    pg.draw.rect(window, GREEN, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - (hb_width // 2) + 2, 12, h_width, 16)) 
+    bar_width = 700
+    h_width = scale_range(player.health, 0, 100, 0, bar_width - 4)
+    pg.draw.rect(window, BLUE, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - bar_width // 2, 10, bar_width, 20)) 
+    pg.draw.rect(window, GREEN, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - (bar_width // 2) + 2, 12, h_width, 16)) 
+    window.blit(small_font.render(f"Health", False, RED), (TEXT_WIDTH + (GAME_WIDTH // 2), 10))
+    
+    # Munition bar
+    h_width = scale_range(player.rockets, 0, MAX_SHIP_ROCKETS, 0, bar_width - 4)
+    pg.draw.rect(window, BLUE, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - bar_width // 2, HEIGHT - 30, bar_width, 20)) 
+    pg.draw.rect(window, GREEN, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - (bar_width // 2) + 2, HEIGHT - 28, h_width, 16)) 
+    window.blit(small_font.render(f"Rockets", False, RED), (TEXT_WIDTH + (GAME_WIDTH // 2), HEIGHT - 30))
+    
+    MAX_SHIP_ROCKETS
     
     pg.display.update()
     
@@ -103,6 +113,7 @@ def handle_asteroids(asteroids, player, crash_sound):
 def main():
     running = True
     game_over = False
+    game_over_sound_played = False
     
     pg.time.set_timer(rocket_refill_timer, ROCKET_REFILL_TIME)
     pg.time.set_timer(player_repair_timer, PLAYER_REPAIR_TIME)
@@ -114,9 +125,11 @@ def main():
     pg.mixer.fadeout(10)
     ding_sound = pg.mixer.Sound(join('assets', 'Sounds', "ding.wav"))
     ding_sound.set_volume(0.1)
+    game_over_sound = pg.mixer.Sound(join('assets', 'Sounds', "game_over.wav"))
+    game_over_sound.set_volume(0.7)
     crash_sound = pg.mixer.Sound(join('assets', 'Sounds', "crash.wav"))
     crash_sound.set_volume(0.1)
-    pg.mixer.music.load(join('assets', 'Sounds', "space-chase.mp3"))
+    pg.mixer.music.load(join('assets', 'Sounds', "space_chase.mp3"))
     pg.mixer.music.play(-1, 0.0)
     pg.mixer.music.set_volume(0.5)
 
@@ -197,14 +210,18 @@ def main():
             
         else: # Game over
             pg.mixer.music.stop()
-            window.blit(big_font.render(f"Game Over", False, RED), (550, 200))
-            window.blit(big_font.render(f"Points:{player.points} ", False, RED), (590, 300))
-            window.blit(big_font.render(f"Health:{player.health} ", False, RED), (510, 400))
-            window.blit(big_font.render(f"Total Points:{player.points + player.health//15} ", False, RED), (470, 500))
+            if not game_over_sound_played:
+                game_over_sound.play()
+                game_over_sound_played = True
+            bonus_points = player.health // 15
+            window.blit(large_font.render(f"Game Over", False, RED), (550, 200))
+            window.blit(large_font.render(f"Points:{player.points} ", False, RED), (590, 300))
+            window.blit(large_font.render(f"Health:{player.health} Bonus:{bonus_points} ", False, RED), (350, 400))
+            window.blit(large_font.render(f"Total Points:{player.points + bonus_points} ", False, RED), (470, 500))
             pg.display.update()
-            
         
     pg.joystick.quit()
+    pg.mixer.quit()
     pg.quit()
     sys.exit()
 
