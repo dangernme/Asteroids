@@ -114,6 +114,7 @@ def main():
     running = True
     game_over = False
     game_over_sound_played = False
+    pg.display.set_icon(pg.image.load(join('assets', 'Ships', 'Ship Full health.png')))
     
     pg.time.set_timer(rocket_refill_timer, ROCKET_REFILL_TIME)
     pg.time.set_timer(player_repair_timer, PLAYER_REPAIR_TIME)
@@ -214,10 +215,10 @@ def main():
                 game_over_sound.play()
                 game_over_sound_played = True
             bonus_points = player.health // 15
-            window.blit(large_font.render(f"Game Over", False, RED), (550, 200))
-            window.blit(large_font.render(f"Points:{player.points} ", False, RED), (590, 300))
-            window.blit(large_font.render(f"Health:{player.health} Bonus:{bonus_points} ", False, RED), (350, 400))
-            window.blit(large_font.render(f"Total Points:{player.points + bonus_points} ", False, RED), (470, 500))
+            window.blit(large_font.render(f"Game Over", False, RED), (500, 200))
+            window.blit(large_font.render(f"Points:{player.points} ", False, RED), (540, 300))
+            window.blit(large_font.render(f"Health:{player.health} Bonus:{bonus_points} ", False, RED), (300, 400))
+            window.blit(large_font.render(f"Total Points:{player.points + bonus_points} ", False, RED), (420, 500))
             pg.display.update()
         
     pg.joystick.quit()
