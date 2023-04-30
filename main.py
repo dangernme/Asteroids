@@ -5,7 +5,7 @@ import pygame as pg
 from settings import *
 from spaceship import Spaceship
 from munition import Munition
-from asteroid import Asteroid
+from asteroid_medium import Asteroid_Medium
 from asteroid_small import Asteroid_Small
 from repair_pack import Medi
 Vec = pg.math.Vector2
@@ -31,7 +31,7 @@ munition_respawn_timer = pg.USEREVENT + 2
 medi_respawn_timer = pg.USEREVENT + 3
 game_end_timer = pg.USEREVENT + 4
 
-def draw(bg_image, player, active_rockets, asteroids, asteroids_small, spawned_munition, spawed_medis):
+def draw(bg_image, player, active_rockets, asteroids_medium, asteroids_small, spawned_munition, spawed_medis):
     window.blit(bg_image, (TEXT_WIDTH, 0)) # Draw background
     
     player.draw()
@@ -39,7 +39,7 @@ def draw(bg_image, player, active_rockets, asteroids, asteroids_small, spawned_m
     for rocket in active_rockets:
         rocket.draw()
     
-    for asteroid in asteroids: 
+    for asteroid in asteroids_medium: 
         asteroid.draw()
         
     for asteroid in asteroids_small: 
@@ -85,19 +85,19 @@ def draw(bg_image, player, active_rockets, asteroids, asteroids_small, spawned_m
 def scale_range (input, old_min, old_max, new_min, new_max):
     return ( (input - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min
     
-def generate_new_asteroid(asteroids, asteroids_small, asteroid_type):
+def generate_new_asteroid(asteroids_medium, asteroids_small, asteroid):
     random_start = rd.randint(0,4)
-    if asteroid_type == 0:
+    if isinstance(asteroid, Asteroid_Medium):
         if random_start == 0: # left
-            asteroids.append(Asteroid(Vec(0, rd.randint(0, HEIGHT))))
+            asteroids_medium.append(Asteroid_Medium(Vec(0, rd.randint(0, HEIGHT))))
         elif random_start == 1: # top
-            asteroids.append(Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), 0)))
+            asteroids_medium.append(Asteroid_Medium(Vec(rd.randint(TEXT_WIDTH, WIDTH), 0)))
         elif(random_start == 2): #right
-            asteroids.append(Asteroid(Vec(WIDTH, rd.randint(0, HEIGHT))))
+            asteroids_medium.append(Asteroid_Medium(Vec(WIDTH, rd.randint(0, HEIGHT))))
         else: #bottom
-            asteroids.append(Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), HEIGHT)))
+            asteroids_medium.append(Asteroid_Medium(Vec(rd.randint(TEXT_WIDTH, WIDTH), HEIGHT)))
             
-    if asteroid_type == 1:
+    if isinstance(asteroid, Asteroid_Small):
         if random_start == 0: # left
             asteroids_small.append(Asteroid_Small(Vec(0, rd.randint(0, HEIGHT))))
         elif random_start == 1: # top
@@ -107,31 +107,31 @@ def generate_new_asteroid(asteroids, asteroids_small, asteroid_type):
         else: #bottom
             asteroids_small.append(Asteroid_Small(Vec(rd.randint(TEXT_WIDTH, WIDTH), HEIGHT)))
     
-def handle_asteroids(asteroids, asteroids_small, player, crash_sound):
+def handle_asteroids(asteroids_medium, asteroids_small, player, crash_sound):
     for active_rocket in player.active_rockets:        
-        for asteroid in asteroids:
+        for asteroid in asteroids_medium:
             if pg.sprite.collide_circle(active_rocket, asteroid):
                 crash_sound.play()
-                asteroids.remove(asteroid)
+                generate_new_asteroid(asteroids_medium, asteroids_small, asteroid)
+                asteroids_medium.remove(asteroid)
                 player.active_rockets.remove(active_rocket)
                 player.points += 1
-                generate_new_asteroid(asteroids, asteroids_small, 0)
                 
         for asteroid in asteroids_small:
             if pg.sprite.collide_circle(active_rocket, asteroid):
                 crash_sound.play()
+                generate_new_asteroid(asteroids_medium, asteroids_small, asteroid)
                 asteroids_small.remove(asteroid)
                 player.active_rockets.remove(active_rocket)
                 player.points += 1
-                generate_new_asteroid(asteroids, asteroids_small, 1)
                 
-    for asteroid in asteroids:
+    for asteroid in asteroids_medium:
         asteroid.update()
         if pg.sprite.collide_circle(player, asteroid):
             crash_sound.play()
-            asteroids.remove(asteroid)
+            asteroids_medium.remove(asteroid)
             player.health -= asteroid.damage
-            generate_new_asteroid(asteroids, asteroids_small, 0)
+            generate_new_asteroid(asteroids_medium, asteroids_small, asteroid)
             
     for asteroid in asteroids_small:
         asteroid.update()
@@ -139,7 +139,7 @@ def handle_asteroids(asteroids, asteroids_small, player, crash_sound):
             crash_sound.play()
             asteroids_small.remove(asteroid)
             player.health -= asteroid.damage
-            generate_new_asteroid(asteroids, asteroids_small, 1)
+            generate_new_asteroid(asteroids_medium, asteroids_small, asteroid)
         
 def main():
     running = True
@@ -171,13 +171,13 @@ def main():
         (WIDTH - TEXT_WIDTH, HEIGHT))
     
     player = Spaceship(Vec(TEXT_WIDTH + GAME_WIDTH // 2, HEIGHT // 2))
-    asteroids = []
+    asteroids_medium = []
     asteroids_small = []
     spawned_munition = []
     spawned_medis = []
     
     for i in range(NUM_ASTEROIDS):
-        asteroids.append(Asteroid(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
+        asteroids_medium.append(Asteroid_Medium(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
         
     for i in range(NUM_SMALL_ASTEROIDS):
         asteroids_small.append(Asteroid_Small(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
@@ -240,9 +240,9 @@ def main():
                 if active_rocket.pos.x < TEXT_WIDTH or active_rocket.pos.x > WIDTH or active_rocket.pos.y < 0 or active_rocket.pos.y > HEIGHT:
                     player.active_rockets.remove(active_rocket)
             
-            handle_asteroids(asteroids, asteroids_small, player, crash_sound)
+            handle_asteroids(asteroids_medium, asteroids_small, player, crash_sound)
             
-            draw(bg_image, player, player.active_rockets, asteroids, asteroids_small, spawned_munition, spawned_medis)
+            draw(bg_image, player, player.active_rockets, asteroids_medium, asteroids_small, spawned_munition, spawned_medis)
             
         else: # Game over
             pg.mixer.music.stop()

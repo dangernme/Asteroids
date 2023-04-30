@@ -2,10 +2,10 @@ from os.path import join
 import random as rd
 import pygame as pg
 from settings import *
-from asteroid import Asteroid
+from asteroid_abstract import Asteroid_Abstract
 Vec = pg.math.Vector2
 
-class Asteroid_Small(Asteroid):
+class Asteroid_Small(Asteroid_Abstract):
     def __init__(self, init_pos):
         super().__init__(init_pos)
         self.speed = rd.randint(2, 3)
@@ -27,8 +27,6 @@ class Asteroid_Small(Asteroid):
                        pg.image.load(join(self.path, "a30012.png")),
                        pg.image.load(join(self.path, "a30013.png")),
                        pg.image.load(join(self.path, "a30014.png")),
-                       pg.image.load(join(self.path, "a30015.png"))]
-        self.animation_count = 0.0
+                       pg.image.load(join(self.path, "a30015.png"))]     
         self.rect = self.images[0].get_rect(x=self.pos.x, y=self.pos.y)
-      
         
