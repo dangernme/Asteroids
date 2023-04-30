@@ -86,26 +86,27 @@ def scale_range (input, old_min, old_max, new_min, new_max):
     return ( (input - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min
     
 def generate_new_asteroid(asteroids_medium, asteroids_small, asteroid):
-    random_start = rd.randint(0,4)
-    if isinstance(asteroid, Asteroid_Medium):
-        if random_start == 0: # left
-            asteroids_medium.append(Asteroid_Medium(Vec(0, rd.randint(0, HEIGHT))))
-        elif random_start == 1: # top
-            asteroids_medium.append(Asteroid_Medium(Vec(rd.randint(TEXT_WIDTH, WIDTH), 0)))
-        elif(random_start == 2): #right
-            asteroids_medium.append(Asteroid_Medium(Vec(WIDTH, rd.randint(0, HEIGHT))))
-        else: #bottom
-            asteroids_medium.append(Asteroid_Medium(Vec(rd.randint(TEXT_WIDTH, WIDTH), HEIGHT)))
-            
-    if isinstance(asteroid, Asteroid_Small):
-        if random_start == 0: # left
-            asteroids_small.append(Asteroid_Small(Vec(0, rd.randint(0, HEIGHT))))
-        elif random_start == 1: # top
-            asteroids_small.append(Asteroid_Small(Vec(rd.randint(TEXT_WIDTH, WIDTH), 0)))
-        elif(random_start == 2): #right
-            asteroids_small.append(Asteroid_Small(Vec(WIDTH, rd.randint(0, HEIGHT))))
-        else: #bottom
-            asteroids_small.append(Asteroid_Small(Vec(rd.randint(TEXT_WIDTH, WIDTH), HEIGHT)))
+    if ASTEROIDS_RESPAWN:
+        random_start = rd.randint(0,4)
+        if isinstance(asteroid, Asteroid_Medium):
+            if random_start == 0: # left
+                asteroids_medium.append(Asteroid_Medium(Vec(0, rd.randint(0, HEIGHT))))
+            elif random_start == 1: # top
+                asteroids_medium.append(Asteroid_Medium(Vec(rd.randint(TEXT_WIDTH, WIDTH), 0)))
+            elif(random_start == 2): #right
+                asteroids_medium.append(Asteroid_Medium(Vec(WIDTH, rd.randint(0, HEIGHT))))
+            else: #bottom
+                asteroids_medium.append(Asteroid_Medium(Vec(rd.randint(TEXT_WIDTH, WIDTH), HEIGHT)))
+                
+        if isinstance(asteroid, Asteroid_Small):
+            if random_start == 0: # left
+                asteroids_small.append(Asteroid_Small(Vec(0, rd.randint(0, HEIGHT))))
+            elif random_start == 1: # top
+                asteroids_small.append(Asteroid_Small(Vec(rd.randint(TEXT_WIDTH, WIDTH), 0)))
+            elif(random_start == 2): #right
+                asteroids_small.append(Asteroid_Small(Vec(WIDTH, rd.randint(0, HEIGHT))))
+            else: #bottom
+                asteroids_small.append(Asteroid_Small(Vec(rd.randint(TEXT_WIDTH, WIDTH), HEIGHT)))
     
 def handle_asteroids(asteroids_medium, asteroids_small, player, crash_sound):
     for active_rocket in player.active_rockets:        
@@ -123,7 +124,7 @@ def handle_asteroids(asteroids_medium, asteroids_small, player, crash_sound):
                 generate_new_asteroid(asteroids_medium, asteroids_small, asteroid)
                 asteroids_small.remove(asteroid)
                 player.active_rockets.remove(active_rocket)
-                player.points += 1
+                player.points += 2
                 
     for asteroid in asteroids_medium:
         asteroid.update()
@@ -176,7 +177,7 @@ def main():
     spawned_munition = []
     spawned_medis = []
     
-    for i in range(NUM_ASTEROIDS):
+    for i in range(NUM_MEDIUM_ASTEROIDS):
         asteroids_medium.append(Asteroid_Medium(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
         
     for i in range(NUM_SMALL_ASTEROIDS):
@@ -188,8 +189,7 @@ def main():
             clock.tick(int(FPS/2))
         else:
             clock.tick(FPS) 
-            
-            
+              
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
@@ -241,6 +241,8 @@ def main():
                     player.active_rockets.remove(active_rocket)
             
             handle_asteroids(asteroids_medium, asteroids_small, player, crash_sound)
+            if len(asteroids_medium) == 0 and len(asteroids_small) == 0:
+                game_over = True
             
             draw(bg_image, player, player.active_rockets, asteroids_medium, asteroids_small, spawned_munition, spawned_medis)
             

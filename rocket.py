@@ -1,11 +1,10 @@
 from os.path import join
 import pygame as pg
-from movable import Movable
+import movable
 from settings import *
 Vec = pg.math.Vector2
 
-
-class Rocket(Movable):
+class Rocket(movable.Movable):
     def __init__(self, init_pos, init_dir):
         super().__init__(init_pos, init_dir)
         self.image = pg.image.load(join('assets', 'Ships', 'Weapons', 'Rocket.png'))
