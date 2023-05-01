@@ -3,7 +3,6 @@ import random as rd
 import pygame as pg
 from settings import *
 from asteroid_abstract import Asteroid_Abstract
-Vec = pg.math.Vector2
 
 class Asteroid_Small(Asteroid_Abstract):
     def __init__(self, init_pos):
