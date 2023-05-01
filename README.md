@@ -12,4 +12,4 @@ Asteroids is a space shooter with the goal to shoot as many asteroids as possibl
 - Collected rockets give you a random amount of rockets.
 - Steering by arrow keys and Control.
 - Steering by standard SNES USB controller.
-- Feel free to p change the settings.
+- Feel free to change the settings.
