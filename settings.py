@@ -1,5 +1,5 @@
 # Window
-TITLE = "Evolution"
+TITLE = "Asteroids"
 SIZE = WIDTH, HEIGHT = ((1300, 900))
 TEXT_WIDTH = 200
 GAME_WIDTH = WIDTH - TEXT_WIDTH
