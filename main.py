@@ -14,7 +14,6 @@ import helpers
 pg.init()
 pg.font.init()
 pg.mixer.init()
-pg.joystick.init()
 pg.display.set_icon(pg.image.load(join('assets', 'Ships', 'Ship Full health.png')))
 pg.display.set_caption(TITLE)
 
@@ -159,8 +158,9 @@ def main():
     ding_sound = pg.mixer.Sound(join('assets', 'Sounds', "ding.wav"))
     ding_sound.set_volume(0.1)
 
-    gamepad = pg.joystick.Joystick(0)
-    gamepad.init()
+    if pg.joystick.get_count() == 1:
+        gamepad = pg.joystick.Joystick(0)
+        gamepad.init()
 
     
     player = spaceship.Spaceship(Vec(TEXT_WIDTH + GAME_WIDTH // 2, HEIGHT // 2))

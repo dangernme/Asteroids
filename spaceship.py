@@ -20,8 +20,9 @@ class Spaceship(Movable):
         self.speed = 0.5
         self.acc = Vec(0, 0)
         self.active_rockets = []
-        self.gamepad = pg.joystick.Joystick(0)
-        self.gamepad.init()
+        if pg.joystick.get_count() == 1:
+            self.gamepad = pg.joystick.Joystick(0)
+            self.gamepad.init()
         self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
         self.radius = 15
         self.points = 0
@@ -76,8 +77,13 @@ class Spaceship(Movable):
     def update(self):
         self.acc = Vec(0, 0)
         keys = pg.key.get_pressed()
-        axis_x = self.gamepad.get_axis(0)
-        axis_y = self.gamepad.get_axis(1)
+        
+        if pg.joystick.get_count() == 1:
+            axis_x = self.gamepad.get_axis(0)
+            axis_y = self.gamepad.get_axis(1)
+        else:
+            axis_x = 0
+            axis_y = 0
 
         # handle direction
         if keys[pg.K_LEFT] or axis_x < -0.5:
