@@ -1,5 +1,4 @@
 import pygame as pg
-import random as rd
 from os.path import join
 from settings import *
 

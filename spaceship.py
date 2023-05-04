@@ -113,3 +113,6 @@ class Spaceship(Movable):
             pg.draw.circle(self.window, RED, self.rect.center, self.radius)
             pg.draw.circle(self.window, BLUE, self.rect.bottomright, 3)
         self.window.blit(self.image, (self.pos.x - self.image.get_width() // 2, self.pos.y - self.image.get_height() // 2))
+        
+        if DIRECTION_LASER:
+            pg.draw.line(self.window, RED, self.pos, self.direction * 20000, 1)
