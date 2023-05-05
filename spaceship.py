@@ -1,6 +1,7 @@
 from os.path import join
 import random as rd
 import pygame as pg
+import logging
 from settings import *
 from movable import Movable
 from rocket import Rocket
@@ -31,6 +32,7 @@ class Spaceship(Movable):
         pg.mixer.fadeout(10)
         self.pew_sound = pg.mixer.Sound(join('assets', 'Sounds', "pew.wav"))
         self.pew_sound.set_volume(0.1)
+        logging.debug(f"Ship created on {init_pos}")
 
     def select_ship_image(self):
         ship_count = 0
@@ -48,27 +50,32 @@ class Spaceship(Movable):
 
     def handle_border_collition(self):
         if self.pos.x < TEXT_WIDTH:
+            logging.debug(f"Border collition at {self.pos}")
             self.pos.x = TEXT_WIDTH
             self.vel.x *= -1
             self.direction.x *= -1
             self.health -= 1
         if self.pos.x > WIDTH:
+            logging.debug(f"Border collition at {self.pos}")
             self.pos.x = WIDTH
             self.vel.x *= -1
             self.direction.x *= -1
             self.health -= 1
         if self.pos.y < 0:
+            logging.debug(f"Border collition at {self.pos}")
             self.pos.y = 0
             self.vel.y *= -1
             self.direction.y *= -1
             self.health -= 1
         if self.pos.y > HEIGHT:
+            logging.debug(f"Border collition at {self.pos}")
             self.pos.y = HEIGHT
             self.vel.y *= -1
             self.direction.y *= -1
             self.health -= 1
 
     def fire(self):
+        logging.info("Rocket started")
         if self.rockets > 0 and len(self.active_rockets) < MAX_ACTIVE_ROCKETS: 
             self.rockets -= 1
             self.pew_sound.play()
@@ -111,6 +118,7 @@ class Spaceship(Movable):
 
         
         if self.health <= 0:
+            logging.info(f"Game over due to health == 0")
             self.health = 0
 
     def draw(self):

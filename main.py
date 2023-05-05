@@ -1,5 +1,6 @@
 import sys
 from os.path import join
+import logging
 import pygame as pg
 from settings import *
 import spaceship
@@ -10,6 +11,8 @@ import medi
 Vec = pg.math.Vector2
 import random as rd
 import helpers
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', filename='asteroids.log', filemode='w', level=logging.DEBUG)
 
 pg.init()
 pg.font.init()
@@ -121,6 +124,7 @@ def handle_asteroids(asteroids, player, crash_sound):
     for active_rocket in player.active_rockets:        
         for asteroid in asteroids:
             if pg.sprite.collide_circle(active_rocket, asteroid):
+                logging.info(f"Rocket hit asteroid at {active_rocket.pos}")
                 crash_sound.play()
                 generate_new_asteroid(asteroids, asteroid)
                 asteroids.remove(asteroid)
@@ -130,6 +134,7 @@ def handle_asteroids(asteroids, player, crash_sound):
     for asteroid in asteroids:
         asteroid.update()
         if pg.sprite.collide_circle(player, asteroid):
+            logging.info(f"Player hit asteroid at {player.pos}")
             crash_sound.play()
             asteroids.remove(asteroid)
             player.health -= asteroid.damage
@@ -140,6 +145,7 @@ def handle_game_over(player):
     
     pg.mixer.music.stop()
     if not game_over_sound_played:
+        logging.info(f"Game over")
         game_over_sound.play()
         game_over_sound_played = True
     bonus_points = player.health // 15
@@ -159,6 +165,7 @@ def main():
     ding_sound.set_volume(0.1)
 
     if pg.joystick.get_count() == 1:
+        logging.info("Gamepad detected")
         gamepad = pg.joystick.Joystick(0)
         gamepad.init()
 
@@ -203,6 +210,7 @@ def main():
             for muni in spawned_munition:
                 if pg.sprite.collide_circle(player, muni):
                     ding_sound.play()
+                    logging.info(f"Munition collected at {player.pos}")
                     if player.rockets + muni.amount > MAX_SHIP_ROCKETS:
                         player.rockets += MAX_SHIP_ROCKETS - player.rockets
                     else:
@@ -212,6 +220,7 @@ def main():
             for medis in spawned_medis:
                 if pg.sprite.collide_circle(player, medis):
                     ding_sound.play()
+                    logging.info(f"Medis collected at {player.pos}")
                     if player.health + medis.healh > 100:
                         player.health += 100 - player.health
                     else:
