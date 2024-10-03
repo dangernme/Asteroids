@@ -17,12 +17,11 @@ class Rocket(movable.Movable):
     def draw(self):
         self.rect = self.image.get_rect(x=self.pos.x, y = self.pos.y)
         self.window.blit(self.image, self.pos)
-        
+
         if DEBUG_MODE:
             pg.draw.circle(self.window, GREEN, self.pos, 3)
             pg.draw.circle(self.window, RED, self.rect.center, self.radius)
             pg.draw.circle(self.window, BLUE, self.rect.bottomright, 3)
-                
+
     def update(self):
-        self.pos += self.speed * self.direction.normalize()    
-        
+        self.pos += self.speed * self.direction.normalize()

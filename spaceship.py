@@ -7,7 +7,6 @@ from movable import Movable
 from rocket import Rocket
 Vec = pg.math.Vector2
 
-
 class Spaceship(Movable):
     def __init__(self, init_pos):
         super().__init__(init_pos, Vec(rd.randint(1, 10), rd.randint(1, 10)).normalize())

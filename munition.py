@@ -1,10 +1,10 @@
-import pygame as pg
-import random as rd
 from os.path import join
+import random as rd
+import pygame as pg
 import collectable_abstract
 from settings import *
 
-class Munition(collectable_abstract.Collectable_Abstract):
+class Munition(collectable_abstract.CollectableAbstract):
     def __init__(self, init_pos):
         super().__init__(init_pos)
         self.image = pg.image.load(join('assets', 'Ships', 'Weapons', 'Rocket.png'))

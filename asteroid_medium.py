@@ -2,9 +2,9 @@ from os.path import join
 import random as rd
 import pygame as pg
 from settings import *
-from asteroid_abstract import Asteroid_Abstract
+from asteroid_abstract import AsteroidAbstract
 
-class Asteroid_Medium(Asteroid_Abstract):
+class AsteroidMedium(AsteroidAbstract):
     def __init__(self, init_pos):
         super().__init__(init_pos)
         self.speed = rd.randint(1, 5)
@@ -28,4 +28,3 @@ class Asteroid_Medium(Asteroid_Abstract):
                        pg.image.load(join(self.path, "a10014.png")),
                        pg.image.load(join(self.path, "a10015.png"))]
         self.rect = self.images[0].get_rect(x=self.pos.x, y=self.pos.y)
-        
