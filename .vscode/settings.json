@@ -12,5 +12,15 @@
         "**/__pycache__": true,
         "**/requirements.txt": true,
         "**/venv": true
-    }
+    },
+    "pylint.args": [
+        "--max-line-length=120",
+        "--extension-pkg-whitelist=pygame", 
+        "--disable=C0111", 
+        "--disable=C0114", 
+        "--disable=C0115",
+        "--disable=C0301",
+        "--disable=W0401",
+        "--disable=W0614"
+    ]
 }
