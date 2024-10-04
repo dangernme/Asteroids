@@ -18,6 +18,7 @@ class Game:
         pg.init()
         pg.font.init()
         pg.mixer.init()
+        pg.mixer.fadeout(10)
         pg.display.set_icon(pg.image.load(join('assets', 'Ships', 'Ship Full health.png')))
         pg.display.set_caption(TITLE)
 
@@ -54,6 +55,8 @@ class Game:
         self.crash_sound.set_volume(0.1)
         self.game_over_sound = pg.mixer.Sound(join('assets', 'Sounds', "game_over.wav"))
         self.game_over_sound.set_volume(0.6)
+        self.ding_sound = pg.mixer.Sound(join('assets', 'Sounds', "ding.wav"))
+        self.ding_sound.set_volume(0.1)
 
     def update(self, player, asteroids):
         player.update()
@@ -154,18 +157,22 @@ class Game:
         self.window.blit(self.large_font.render(f"Total Points:{player.points + bonus_points} ", False, RED), (420, 500))
         pg.display.update()
 
-    def run(self):
-        running = True
-
-        # Sound
-        pg.mixer.fadeout(10)
-        ding_sound = pg.mixer.Sound(join('assets', 'Sounds', "ding.wav"))
-        ding_sound.set_volume(0.1)
-
+    def init_gamepad(self):
         if pg.joystick.get_count() == 1:
             logging.info("Gamepad detected")
             gamepad = pg.joystick.Joystick(0)
             gamepad.init()
+
+    def close(self):
+        pg.joystick.quit()
+        pg.mixer.quit()
+        pg.quit()
+        sys.exit()
+
+    def run(self):
+        running = True
+
+        self.init_gamepad()
 
         player = spaceship.Spaceship(Vec(TEXT_WIDTH + GAME_WIDTH // 2, HEIGHT // 2))
         asteroids = []
@@ -206,7 +213,7 @@ class Game:
 
                 for muni in spawned_munition.copy():
                     if pg.sprite.collide_circle(player, muni):
-                        ding_sound.play()
+                        self.ding_sound.play()
                         logging.info("Munition collected at %s", player.pos)
                         if player.rockets + muni.amount > MAX_SHIP_ROCKETS:
                             player.rockets += MAX_SHIP_ROCKETS - player.rockets
@@ -216,7 +223,7 @@ class Game:
 
                 for medis in spawned_medis.copy():
                     if pg.sprite.collide_circle(player, medis):
-                        ding_sound.play()
+                        self.ding_sound.play()
                         logging.info("Medis collected at %s", player.pos)
                         if player.health + medis.healh > 100:
                             player.health += 100 - player.health
@@ -230,8 +237,4 @@ class Game:
                 self.handle_game_over(player)
 
             self.clock.tick(FPS)
-
-        pg.joystick.quit()
-        pg.mixer.quit()
-        pg.quit()
-        sys.exit()
+        self.close()
