@@ -1,27 +1,22 @@
 from os.path import join
-import logging
 import random as rd
 import pygame as pg
 from settings import *
 from movable import Movable
-from rocket import Rocket
 Vec = pg.math.Vector2
 
 class Spaceship(Movable):
     def __init__(self, init_pos):
         super().__init__(init_pos, Vec(rd.randint(1, 10), rd.randint(1, 10)).normalize())
         self.clean_images = [pg.image.load(join('assets', join('Ships', 'Ship Full health.png'))),
-                             pg.image.load(
-                                 join('assets', join('Ships', 'Ship Slight damage.png'))),
-                             pg.image.load(
-                                 join('assets', join('Ships', 'Ship Damaged.png'))),
+                             pg.image.load(join('assets', join('Ships', 'Ship Slight damage.png'))),
+                             pg.image.load(join('assets', join('Ships', 'Ship Damaged.png'))),
                              pg.image.load(join('assets', join('Ships', 'Ship Very damaged.png')))]
         self.image = self.clean_images[0]
         self.health = 100
-        self.rockets = 50
+        self.rockets_amount = 50
         self.speed = 0.5
         self.acc = Vec(0, 0)
-        self.active_rockets = []
         if pg.joystick.get_count() == 1:
             self.gamepad = pg.joystick.Joystick(0)
             self.gamepad.init()
@@ -29,11 +24,6 @@ class Spaceship(Movable):
         self.radius = 15
         self.points = 0
         self.vel = Vec(0, 0)
-        pg.mixer.init()
-        pg.mixer.fadeout(10)
-        self.pew_sound = pg.mixer.Sound(join('assets', 'Sounds', "pew.wav"))
-        self.pew_sound.set_volume(0.1)
-        logging.debug('Ship created on %s', init_pos)
 
     def select_ship_img(self):
         ship_count = 0
@@ -51,37 +41,25 @@ class Spaceship(Movable):
 
     def handle_border_collition(self):
         if self.pos.x < TEXT_WIDTH:
-            logging.debug("Border collition at %s", self.pos)
             self.pos.x = TEXT_WIDTH
             self.vel.x *= -1
             self.direction.x *= -1
             self.health -= 1
         if self.pos.x > WIDTH:
-            logging.debug("Border collition at %s", self.pos)
             self.pos.x = WIDTH
             self.vel.x *= -1
             self.direction.x *= -1
             self.health -= 1
         if self.pos.y < 0:
-            logging.debug("Border collition at %s", self.pos)
             self.pos.y = 0
             self.vel.y *= -1
             self.direction.y *= -1
             self.health -= 1
         if self.pos.y > HEIGHT:
-            logging.debug("Border collition at %s", self.pos)
             self.pos.y = HEIGHT
             self.vel.y *= -1
             self.direction.y *= -1
             self.health -= 1
-
-    def fire(self):
-        logging.info("Rocket started")
-        if self.rockets > 0 and len(self.active_rockets) < MAX_ACTIVE_ROCKETS:
-            self.rockets -= 1
-            self.pew_sound.play()
-            self.active_rockets.append(
-                Rocket(self.pos.copy(), self.direction.copy()))
 
     def update(self):
         self.acc = Vec(0, 0)
@@ -115,13 +93,10 @@ class Spaceship(Movable):
         if not DEBUG_MODE:
             self.speed = self.health / 200
 
-        self.image = pg.transform.rotate(
-            self.clean_images[self.select_ship_img()], self.direction.angle_to(Vec(0, -1)))
+        self.image = pg.transform.rotate(self.clean_images[self.select_ship_img()], self.direction.angle_to(Vec(0, -1)))
         self.rect = self.image.get_rect(center=self.pos)
 
-        if self.health <= 0:
-            logging.info("Game over due to health == 0")
-            self.health = 0
+        self.health = max(self.health, 0)
 
     def draw(self):
         if DEBUG_MODE:

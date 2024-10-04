@@ -10,9 +10,9 @@ class TestSpaceship(unittest.TestCase):
         self.ship = Spaceship(Vec(settings.WIDTH //2,settings.HEIGHT //2))
 
     def test_fire(self):
-        self.ship.rockets = 5
+        self.ship.rockets_amount = 5
         self.ship.fire()
-        self.assertEqual(self.ship.rockets, 4)
+        self.assertEqual(self.ship.rockets_amount, 4)
         self.assertEqual(len(self.ship.active_rockets), 1)
 
     def test_collition_left(self):

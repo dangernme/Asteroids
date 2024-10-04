@@ -28,3 +28,7 @@ class AsteroidMedium(AsteroidAbstract):
                        pg.image.load(join(self.path, "a10014.png")),
                        pg.image.load(join(self.path, "a10015.png"))]
         self.rect = self.images[0].get_rect(x=self.pos.x, y=self.pos.y)
+        self.image = self.images[0]
+
+    def update(self):
+        self.image = self.images[1]

@@ -1,12 +1,15 @@
 from os.path import join
 import pygame as pg
-import movable
 from settings import *
 Vec = pg.math.Vector2
 
-class Rocket(movable.Movable):
+class Rocket(pg.sprite.Sprite):
     def __init__(self, init_pos, init_dir):
-        super().__init__(init_pos, init_dir)
+        super().__init__()
+        self.direction = init_dir.normalize()
+        self.pos = init_pos
+        self.speed = 1
+        self.window = pg.display.get_surface()
         self.image = pg.image.load(join('assets', 'Ships', 'Weapons', 'Rocket.png'))
         self.image = pg.transform.rotate(self.image, self.direction.angle_to(Vec(0, -1)))
         self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)

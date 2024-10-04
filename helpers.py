@@ -1,9 +1,7 @@
-import logging
 import asteroid_small
 import asteroid_medium
 
 def generate_asteroid(asteroid, pos):
-    logging.info('Asteroid respawn at %s', pos)
     if isinstance(asteroid, asteroid_medium.AsteroidMedium):
         return asteroid_medium.AsteroidMedium(pos)
     if isinstance(asteroid, asteroid_small.AsteroidSmall):
