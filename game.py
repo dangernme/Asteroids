@@ -34,9 +34,12 @@ class Game:
         self.bg_image = pg.transform.scale(self.bg_image, (WIDTH - TEXT_WIDTH, HEIGHT))
         self.game_over = False
         self.game_over_sound_played = False
+        self.muni_amount = 0
+        self.medi_amount = 0
 
         self.init_timers()
         self.init_sound()
+        self.init_gamepad()
 
     def init_timers(self):
         self.rocket_refill_timer = pg.USEREVENT
@@ -65,13 +68,6 @@ class Game:
         self.crash_sound.set_volume(0.1)
         self.game_over_sound.set_volume(0.6)
         self.ding_sound.set_volume(0.1)
-
-    def update(self):
-        self.player.update()
-        if self.player.health <= 0:
-            self.game_over = True
-
-
 
     def draw_hud(self):
         # Text area
@@ -138,16 +134,18 @@ class Game:
                 if self.player.rockets_amount > 0 and len(self.active_rockets) < MAX_ACTIVE_ROCKETS:
                     self.player.rockets_amount -= 1
                     self.pew_sound.play()
-                    self.active_rockets.add(Rocket(self.player.pos, self.player.direction))
+                    self.active_rockets.add(Rocket(self.player.pos.copy(), self.player.direction.copy()))
 
             if event.type == self.rocket_refill_timer:
                 self.player.rockets_amount += 1
             if event.type == self.player_heal_timer and self.player.health < 100:
                 self.player.health += 1
-            if event.type == self.munition_respawn_timer and len(self.all_sprites) < MAX_SPAWNED_MUNITION + MAX_SPAWNED_MEDIS:
+            if event.type == self.munition_respawn_timer and self.muni_amount < MAX_SPAWNED_MUNITION + MAX_SPAWNED_MEDIS:
                 self.all_sprites.add(munition.Munition(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
-            if event.type == self.medi_respawn_timer and len(self.all_sprites) < MAX_SPAWNED_MEDIS + MAX_SPAWNED_MUNITION:
+                self.muni_amount +=1
+            if event.type == self.medi_respawn_timer and self.medi_amount < MAX_SPAWNED_MEDIS + MAX_SPAWNED_MUNITION:
                 self.all_sprites.add(medi.Medi(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                self.medi_amount += 1
             if event.type == self.game_end_timer:
                 self.game_over = True
 
@@ -156,14 +154,11 @@ class Game:
     def run(self):
         running = True
 
-        self.init_gamepad()
-
-
         for _ in range(NUM_MEDIUM_ASTEROIDS):
-            self.all_sprites.add(asteroid_medium.AsteroidMedium(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
+            self.all_sprites.add(asteroid_medium.Asteroid1(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
 
         for _ in range(NUM_SMALL_ASTEROIDS):
-            self.all_sprites.add(asteroid_small.AsteroidSmall(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
+            self.all_sprites.add(asteroid_small.Asteroid3(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
 
         while running:
             if self.game_over:
@@ -171,7 +166,9 @@ class Game:
 
             running = self.event_handler()
 
-            self.update()
+            self.player.update()
+            if self.player.health <= 0:
+                self.game_over = True
             self.all_sprites.update()
             self.active_rockets.update()
 
@@ -188,20 +185,24 @@ class Game:
                             self.player.rockets_amount += MAX_SHIP_ROCKETS - self.player.rockets_amount
                         else:
                             self.player.rockets_amount += item.amount
-                            self.all_sprites.remove(item)
+
+                        self.all_sprites.remove(item)
+                        self.muni_amount -= 1
 
                     if isinstance(item, medi.Medi):
                         self.ding_sound.play()
-                        if self.player.health + item.medis.healh > 100:
+                        if self.player.health + item.healh > 100:
                             self.player.health += 100 - self.player.health
                         else:
-                            self.player.health += item.medis.healh
-                            self.all_sprites.remove(item)
+                            self.player.health += item.healh
+
+                        self.all_sprites.remove(item)
+                        self.medi_amount -= 1
 
             rocket_collided = pg.sprite.groupcollide(self.active_rockets, self.all_sprites, True, True)
             if rocket_collided:
                 for item in rocket_collided:
-                    if isinstance(item, (asteroid_medium.AsteroidMedium, asteroid_small.AsteroidSmall)):
+                    if isinstance(item, (asteroid_medium.Asteroid1, asteroid_small.Asteroid3)):
                         self.crash_sound.play()
                         self.generate_new_asteroid(item)
                         self.player.points += 1
@@ -209,10 +210,9 @@ class Game:
 
             self.window.blit(self.bg_image, (TEXT_WIDTH, 0))
             self.all_sprites.draw(self.window)
-            self.draw_hud()
-
-            self.player.draw()
+            self.player.draw(self.window)
             self.active_rockets.draw(self.window)
+            self.draw_hud()
 
             pg.display.flip()
 

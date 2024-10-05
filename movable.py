@@ -8,4 +8,3 @@ class Movable(pg.sprite.Sprite):
         self.direction = init_dir.normalize()
         self.pos = init_pos
         self.speed = 1
-        self.window = pg.display.get_surface()

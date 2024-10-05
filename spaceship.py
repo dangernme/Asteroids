@@ -21,7 +21,6 @@ class Spaceship(Movable):
             self.gamepad = pg.joystick.Joystick(0)
             self.gamepad.init()
         self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
-        self.radius = 15
         self.points = 0
         self.vel = Vec(0, 0)
 
@@ -90,21 +89,15 @@ class Spaceship(Movable):
         self.pos += self.vel + 0.5 * self.acc
 
         self.handle_border_collition()
-        if not DEBUG_MODE:
-            self.speed = self.health / 200
+        self.speed = self.health / 200
 
         self.image = pg.transform.rotate(self.clean_images[self.select_ship_img()], self.direction.angle_to(Vec(0, -1)))
         self.rect = self.image.get_rect(center=self.pos)
 
         self.health = max(self.health, 0)
 
-    def draw(self):
-        if DEBUG_MODE:
-            pg.draw.circle(self.window, GREEN, self.pos, 3)
-            pg.draw.circle(self.window, RED, self.rect.center, self.radius)
-            pg.draw.circle(self.window, BLUE, self.rect.bottomright, 3)
-        self.window.blit(self.image, (self.pos.x - self.image.get_width() //
-                         2, self.pos.y - self.image.get_height() // 2))
+    def draw(self, surface):
+        surface.blit(self.image, (self.pos.x - self.image.get_width() // 2, self.pos.y - self.image.get_height() // 2))
 
         if DIRECTION_LASER:
-            pg.draw.line(self.window, RED, self.pos, self.direction * 20000, 1)
+            pg.draw.line(surface, RED, self.pos, self.direction * 20000, 1)

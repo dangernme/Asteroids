@@ -2,10 +2,10 @@ import asteroid_small
 import asteroid_medium
 
 def generate_asteroid(asteroid, pos):
-    if isinstance(asteroid, asteroid_medium.AsteroidMedium):
-        return asteroid_medium.AsteroidMedium(pos)
-    if isinstance(asteroid, asteroid_small.AsteroidSmall):
-        return asteroid_small.AsteroidSmall(pos)
+    if isinstance(asteroid, asteroid_medium.Asteroid1):
+        return asteroid_medium.Asteroid1(pos)
+    if isinstance(asteroid, asteroid_small.Asteroid3):
+        return asteroid_small.Asteroid3(pos)
     print("Invalid asteroid type")
     return None
 

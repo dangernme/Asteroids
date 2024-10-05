@@ -4,7 +4,7 @@ import pygame as pg
 from settings import *
 from asteroid_abstract import AsteroidAbstract
 
-class AsteroidSmall(AsteroidAbstract):
+class Asteroid3(AsteroidAbstract):
     def __init__(self, init_pos):
         super().__init__(init_pos)
         self.speed = rd.randint(2, 3)
@@ -27,8 +27,3 @@ class AsteroidSmall(AsteroidAbstract):
                        pg.image.load(join(self.path, "a30013.png")),
                        pg.image.load(join(self.path, "a30014.png")),
                        pg.image.load(join(self.path, "a30015.png"))]
-        self.rect = self.images[0].get_rect(x=self.pos.x, y=self.pos.y)
-        self.image = self.images[0]
-
-    def update(self):
-        self.image = self.images[1]
