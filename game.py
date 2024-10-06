@@ -6,8 +6,8 @@ from settings import *
 from hud import Hud
 from spaceship import Spaceship
 from munition import Munition
-from asteroid_medium import Asteroid1
-from asteroid_small import Asteroid3
+from asteroid_1 import Asteroid1
+from asteroid_3 import Asteroid3
 from medi import Medi
 from rocket import Rocket
 import helpers
