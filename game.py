@@ -3,11 +3,12 @@ from os.path import join
 import random as rd
 import pygame as pg
 from settings import *
-import spaceship
-import munition
-import asteroid_medium
-import asteroid_small
-import medi
+from hud import Hud
+from spaceship import Spaceship
+from munition import Munition
+from asteroid_medium import Asteroid1
+from asteroid_small import Asteroid3
+from medi import Medi
 from rocket import Rocket
 import helpers
 Vec = pg.math.Vector2
@@ -22,20 +23,17 @@ class Game:
         pg.display.set_caption(TITLE)
 
         # General variables
-        self.player = spaceship.Spaceship(Vec(TEXT_WIDTH + GAME_WIDTH // 2, HEIGHT // 2))
-        self.all_sprites = pg.sprite.Group()
+        self.player = Spaceship(Vec(TEXT_WIDTH + GAME_WIDTH // 2, HEIGHT // 2))
+        self.other_sprites = pg.sprite.Group()
         self.active_rockets = pg.sprite.Group()
-        self.small_font = pg.font.SysFont('Comic Sans MS', SMALL_TEXT_SIZE)
-        self.medium_font = pg.font.SysFont('Comic Sans MS', MEDIUM_TEXT_SIZE)
-        self.large_font = pg.font.SysFont('Comic Sans MS', LARGE_TEXT_SIZE)
-        self.window = pg.display.set_mode(SIZE)
+        self.screen = pg.display.set_mode(SIZE)
         self.clock = pg.time.Clock()
         self.bg_image = pg.image.load(join('assets', 'background.png'))
         self.bg_image = pg.transform.scale(self.bg_image, (WIDTH - TEXT_WIDTH, HEIGHT))
         self.game_over = False
-        self.game_over_sound_played = False
         self.muni_amount = 0
         self.medi_amount = 0
+        self.hud = Hud()
 
         self.init_timers()
         self.init_sound()
@@ -57,7 +55,6 @@ class Game:
     def init_sound(self):
         pg.mixer.music.load(join('assets', 'Sounds', "space_chase.mp3"))
         self.crash_sound = pg.mixer.Sound(join('assets', 'Sounds', "crash.wav"))
-        self.game_over_sound = pg.mixer.Sound(join('assets', 'Sounds', "game_over.wav"))
         self.ding_sound = pg.mixer.Sound(join('assets', 'Sounds', "ding.wav"))
         self.pew_sound = pg.mixer.Sound(join('assets', 'Sounds', "pew.wav"))
         if MUSIC:
@@ -66,52 +63,20 @@ class Game:
 
         self.pew_sound.set_volume(0.1)
         self.crash_sound.set_volume(0.1)
-        self.game_over_sound.set_volume(0.6)
         self.ding_sound.set_volume(0.1)
-
-    def draw_hud(self):
-        # Text area
-        pg.draw.rect(self.window, (50,50,50), pg.Rect(0,0, TEXT_WIDTH, HEIGHT))
-
-        self.window.blit(self.medium_font.render(f"Points {self.player.points}", False, TEXT_COLOR), (10, 10))
-        self.window.blit(self.medium_font.render(f"Time {((GAME_TIME / 1000) - pg.time.get_ticks() / 1000) + 0.1:.0f}", False, TEXT_COLOR), (10, 40))
-
-        # Health bar
-        bar_width = 700
-        h_width = helpers.scale_range(self.player.health, 0, 100, 0, bar_width - 4)
-        pg.draw.rect(self.window, BLUE, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - bar_width // 2, 10, bar_width, 20))
-        pg.draw.rect(self.window, GREEN, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - (bar_width // 2) + 2, 12, h_width, 16))
-        self.window.blit(self.small_font.render('Health', False, RED), (TEXT_WIDTH + (GAME_WIDTH // 2), 10))
-
-        # Munition bar
-        h_width = helpers.scale_range(self.player.rockets_amount, 0, MAX_SHIP_ROCKETS, 0, bar_width - 4)
-        pg.draw.rect(self.window, BLUE, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - bar_width // 2, HEIGHT - 30, bar_width, 20))
-        pg.draw.rect(self.window, GREEN, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - (bar_width // 2) + 2, HEIGHT - 28, h_width, 16))
-        self.window.blit(self.small_font.render('Rockets', False, RED), (TEXT_WIDTH + (GAME_WIDTH // 2), HEIGHT - 30))
 
     def generate_new_asteroid(self, asteroid):
         if ASTEROIDS_RESPAWN:
             random_start = rd.randint(0,4)
 
             if random_start == 0: # left
-                self.all_sprites.add(helpers.generate_asteroid(asteroid, Vec(0, rd.randint(0, HEIGHT))))
+                self.other_sprites.add(helpers.generate_asteroid(asteroid, Vec(0, rd.randint(0, HEIGHT))))
             elif random_start == 1: # top
-                self.all_sprites.add(helpers.generate_asteroid(asteroid, Vec(rd.randint(TEXT_WIDTH, WIDTH), 0)))
+                self.other_sprites.add(helpers.generate_asteroid(asteroid, Vec(rd.randint(TEXT_WIDTH, WIDTH), 0)))
             elif random_start == 2: #right
-                self.all_sprites.add(helpers.generate_asteroid(asteroid, Vec(WIDTH, rd.randint(0, HEIGHT))))
+                self.other_sprites.add(helpers.generate_asteroid(asteroid, Vec(WIDTH, rd.randint(0, HEIGHT))))
             else: #bottom
-                self.all_sprites.add(helpers.generate_asteroid(asteroid, Vec(rd.randint(TEXT_WIDTH, WIDTH), HEIGHT)))
-
-    def handle_game_over(self, player):
-        pg.mixer.music.stop()
-        if not self.game_over_sound_played:
-            self.game_over_sound.play()
-            self.game_over_sound_played = True
-        bonus_points = player.health // 15
-        self.window.blit(self.large_font.render("Game Over", False, RED), (500, 200))
-        self.window.blit(self.large_font.render(f"Points:{player.points} ", False, RED), (540, 300))
-        self.window.blit(self.large_font.render(f"Health:{player.health} Bonus:{bonus_points} ", False, RED), (300, 400))
-        self.window.blit(self.large_font.render(f"Total Points:{player.points + bonus_points} ", False, RED), (420, 500))
+                self.other_sprites.add(helpers.generate_asteroid(asteroid, Vec(rd.randint(TEXT_WIDTH, WIDTH), HEIGHT)))
 
     def init_gamepad(self):
         if pg.joystick.get_count() == 1:
@@ -141,10 +106,10 @@ class Game:
             if event.type == self.player_heal_timer and self.player.health < 100:
                 self.player.health += 1
             if event.type == self.munition_respawn_timer and self.muni_amount < MAX_SPAWNED_MUNITION + MAX_SPAWNED_MEDIS:
-                self.all_sprites.add(munition.Munition(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                self.other_sprites.add(Munition(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
                 self.muni_amount +=1
             if event.type == self.medi_respawn_timer and self.medi_amount < MAX_SPAWNED_MEDIS + MAX_SPAWNED_MUNITION:
-                self.all_sprites.add(medi.Medi(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                self.other_sprites.add(Medi(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
                 self.medi_amount += 1
             if event.type == self.game_end_timer:
                 self.game_over = True
@@ -155,10 +120,10 @@ class Game:
         running = True
 
         for _ in range(NUM_MEDIUM_ASTEROIDS):
-            self.all_sprites.add(asteroid_medium.Asteroid1(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
+            self.other_sprites.add(Asteroid1(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
 
         for _ in range(NUM_SMALL_ASTEROIDS):
-            self.all_sprites.add(asteroid_small.Asteroid3(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
+            self.other_sprites.add(Asteroid3(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
 
         while running:
             if self.game_over:
@@ -169,50 +134,53 @@ class Game:
             self.player.update()
             if self.player.health <= 0:
                 self.game_over = True
-            self.all_sprites.update()
+            self.other_sprites.update()
             self.active_rockets.update()
 
             for rocket in self.active_rockets:
                 if rocket.pos.x < TEXT_WIDTH or rocket.pos.x > WIDTH or rocket.pos.y < 0 or rocket.pos.y > HEIGHT:
                     self.active_rockets.remove(rocket)
 
-            player_collided = pg.sprite.spritecollide(self.player, self.all_sprites, False)
+            player_collided = pg.sprite.spritecollide(self.player, self.other_sprites, False)
             if player_collided:
                 for item in player_collided:
-                    if isinstance(item, munition.Munition):
+                    if isinstance(item, Munition):
                         self.ding_sound.play()
                         if self.player.rockets_amount + item.amount > MAX_SHIP_ROCKETS:
                             self.player.rockets_amount += MAX_SHIP_ROCKETS - self.player.rockets_amount
                         else:
                             self.player.rockets_amount += item.amount
 
-                        self.all_sprites.remove(item)
+                        self.other_sprites.remove(item)
                         self.muni_amount -= 1
 
-                    if isinstance(item, medi.Medi):
+                    if isinstance(item, Medi):
                         self.ding_sound.play()
-                        if self.player.health + item.healh > 100:
+                        if self.player.health + item.health > 100:
                             self.player.health += 100 - self.player.health
                         else:
-                            self.player.health += item.healh
+                            self.player.health += item.health
 
-                        self.all_sprites.remove(item)
+                        self.other_sprites.remove(item)
                         self.medi_amount -= 1
 
-            rocket_collided = pg.sprite.groupcollide(self.active_rockets, self.all_sprites, True, True)
+            rocket_collided = pg.sprite.groupcollide(self.active_rockets, self.other_sprites, False, False)
             if rocket_collided:
-                for item in rocket_collided:
-                    if isinstance(item, (asteroid_medium.Asteroid1, asteroid_small.Asteroid3)):
-                        self.crash_sound.play()
-                        self.generate_new_asteroid(item)
-                        self.player.points += 1
+                for rocket, collided_asteroids in rocket_collided.items():
+                    for collided_asteroid in collided_asteroids:
+                        if isinstance(collided_asteroid, (Asteroid1, Asteroid3)):
+                            self.crash_sound.play()
+                            self.generate_new_asteroid(collided_asteroid)
+                            self.player.points += 1
+                            self.other_sprites.remove(collided_asteroid)
+                            self.active_rockets.remove(rocket)
 
 
-            self.window.blit(self.bg_image, (TEXT_WIDTH, 0))
-            self.all_sprites.draw(self.window)
-            self.player.draw(self.window)
-            self.active_rockets.draw(self.window)
-            self.draw_hud()
+            self.screen.blit(self.bg_image, (TEXT_WIDTH, 0))
+            self.other_sprites.draw(self.screen)
+            self.player.draw(self.screen)
+            self.active_rockets.draw(self.screen)
+            self.hud.draw(self.screen, self.player)
 
             pg.display.flip()
 

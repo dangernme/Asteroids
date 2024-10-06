@@ -8,11 +8,11 @@ Vec = pg.math.Vector2
 class Spaceship(Movable):
     def __init__(self, init_pos):
         super().__init__(init_pos, Vec(rd.randint(1, 10), rd.randint(1, 10)).normalize())
-        self.clean_images = [pg.image.load(join('assets', join('Ships', 'Ship Full health.png'))),
+        self.images = [pg.image.load(join('assets', join('Ships', 'Ship Full health.png'))),
                              pg.image.load(join('assets', join('Ships', 'Ship Slight damage.png'))),
                              pg.image.load(join('assets', join('Ships', 'Ship Damaged.png'))),
                              pg.image.load(join('assets', join('Ships', 'Ship Very damaged.png')))]
-        self.image = self.clean_images[0]
+        self.image = self.images[0]
         self.health = 100
         self.rockets_amount = 50
         self.speed = 0.5
@@ -91,7 +91,7 @@ class Spaceship(Movable):
         self.handle_border_collition()
         self.speed = self.health / 200
 
-        self.image = pg.transform.rotate(self.clean_images[self.select_ship_img()], self.direction.angle_to(Vec(0, -1)))
+        self.image = pg.transform.rotate(self.images[self.select_ship_img()], self.direction.angle_to(Vec(0, -1)))
         self.rect = self.image.get_rect(center=self.pos)
 
         self.health = max(self.health, 0)

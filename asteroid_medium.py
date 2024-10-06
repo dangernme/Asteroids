@@ -9,7 +9,6 @@ class Asteroid1(AsteroidAbstract):
         super().__init__(init_pos)
         self.speed = rd.randint(1, 5)
         self.damage = 10
-        self.radius = 27
         self.path = join('assets', 'asteroids', 'medium')
         self.images = [pg.image.load(join(self.path, "a10000.png")),
                        pg.image.load(join(self.path, "a10001.png")),
@@ -27,4 +26,3 @@ class Asteroid1(AsteroidAbstract):
                        pg.image.load(join(self.path, "a10013.png")),
                        pg.image.load(join(self.path, "a10014.png")),
                        pg.image.load(join(self.path, "a10015.png"))]
-        self.rect = self.images[0].get_rect(x=self.pos.x, y=self.pos.y)
