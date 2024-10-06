@@ -9,7 +9,9 @@ class Medi(pg.sprite.Sprite):
         self.pos = init_pos
         self.image = pg.image.load(join('assets', 'heart.png')).convert_alpha()
         self.health = rd.randint(1, 10)
-        self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
+        mask = self.image.get_bounding_rect()
+        self.image = self.image.subsurface(mask).copy()
+        self.rect = self.image.get_rect(center=self.pos)
 
     def draw(self, surface):
-        pg.draw.rect(surface, (255, 0, 0), self.rect, 2)
+        pg.draw.rect(surface, (0, 255, 0), self.rect, 1)

@@ -102,7 +102,8 @@ class Spaceship(pg.sprite.Sprite):
         self.speed = self.health / 200
 
         self.image = pg.transform.rotate(self.images[self.select_ship_img()], self.direction.angle_to(Vec(0, -1)))
-
+        mask = self.image.get_bounding_rect()
+        self.image = self.image.subsurface(mask).copy()
         self.rect = self.image.get_rect(center=self.pos)
 
         self.health = max(self.health, 0)

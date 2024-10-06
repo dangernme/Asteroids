@@ -18,7 +18,10 @@ class AsteroidAbstract(pg.sprite.Sprite):
         self.animation_count += 0.1
         self.pos += self.speed * self.direction.normalize()
         self.image = self.images[int(self.animation_count) % 15]
-        self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
+
+        mask = self.image.get_bounding_rect()
+        self.image = self.image.subsurface(mask).copy()
+        self.rect = self.image.get_rect(center=self.pos)
 
         if self.pos.x + self.rect.width / 2 < TEXT_WIDTH:
             self.pos.x = TEXT_WIDTH - self.rect.width / 2
@@ -34,4 +37,4 @@ class AsteroidAbstract(pg.sprite.Sprite):
             self.direction.y *= -1
 
     def draw(self, surface):
-        pg.draw.rect(surface, (255, 0, 0), self.rect, 2)
+        pg.draw.rect(surface, (0, 0, 255), self.rect, 2)
