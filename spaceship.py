@@ -26,6 +26,7 @@ class Spaceship(pg.sprite.Sprite):
         if pg.joystick.get_count() == 1:
             self.gamepad = pg.joystick.Joystick(0)
             self.gamepad.init()
+
         self.rect = self.image.get_rect()
         self.pos = init_pos
         self.rect.topleft = (self.pos.x, self.pos.y)
@@ -108,6 +109,8 @@ class Spaceship(pg.sprite.Sprite):
 
     def draw(self, surface):
         surface.blit(self.image, (self.pos.x - self.image.get_width() // 2, self.pos.y - self.image.get_height() // 2))
+        if DEBUG_MODE:
+            pg.draw.rect(surface, (255, 0, 0), self.rect, 2)
 
         if DIRECTION_LASER:
             pg.draw.line(surface, RED, self.pos, self.direction * 20000, 1)

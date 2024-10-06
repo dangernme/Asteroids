@@ -12,5 +12,5 @@ class Munition(pg.sprite.Sprite):
         self.amount = rd.randint(1, 10)
         self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
 
-    def update(self):
-        pass
+    def draw(self, surface):
+        pg.draw.rect(surface, (255, 0, 0), self.rect, 2)

@@ -32,3 +32,6 @@ class AsteroidAbstract(pg.sprite.Sprite):
         if self.pos.y + self.rect.height / 2 > HEIGHT:
             self.pos.y = HEIGHT - self.rect.height / 2
             self.direction.y *= -1
+
+    def draw(self, surface):
+        pg.draw.rect(surface, (255, 0, 0), self.rect, 2)

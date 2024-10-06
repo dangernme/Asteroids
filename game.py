@@ -119,10 +119,10 @@ class Game:
     def run(self):
         running = True
 
-        for _ in range(NUM_MEDIUM_ASTEROIDS):
+        for _ in range(NUM_ASTEROIDS1):
             self.other_sprites.add(Asteroid1(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
 
-        for _ in range(NUM_SMALL_ASTEROIDS):
+        for _ in range(NUM_ASTEROIDS3):
             self.other_sprites.add(Asteroid3(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
 
         while running:
@@ -184,6 +184,9 @@ class Game:
                 self.player.draw(self.screen)
                 self.active_rockets.draw(self.screen)
                 self.other_sprites.draw(self.screen)
+                if DEBUG_MODE:
+                    for sprite in self.other_sprites:
+                        sprite.draw(self.screen)
 
             self.hud.draw(self.screen, self.player, self.game_over)
 
