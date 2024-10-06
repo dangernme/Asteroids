@@ -2,16 +2,15 @@ from os.path import join
 import random as rd
 import pygame as pg
 from settings import *
-from movable import Movable
 Vec = pg.math.Vector2
 
-class Spaceship(Movable):
+class Spaceship(pg.sprite.Sprite):
     def __init__(self, init_pos):
-        super().__init__(init_pos, Vec(rd.randint(1, 10), rd.randint(1, 10)).normalize())
-        self.images = [pg.image.load(join('assets', join('Ships', 'Ship Full health.png'))),
-                             pg.image.load(join('assets', join('Ships', 'Ship Slight damage.png'))),
-                             pg.image.load(join('assets', join('Ships', 'Ship Damaged.png'))),
-                             pg.image.load(join('assets', join('Ships', 'Ship Very damaged.png')))]
+        super().__init__()
+        self.images = [pg.image.load(join('assets', 'Ships', 'Ship Full health.png')).convert_alpha(),
+                       pg.image.load(join('assets', 'Ships', 'Ship Slight damage.png')).convert_alpha(),
+                       pg.image.load(join('assets', 'Ships', 'Ship Damaged.png')).convert_alpha(),
+                       pg.image.load(join('assets', 'Ships', 'Ship Very damaged.png')).convert_alpha()]
         self.image = self.images[0]
         self.health = 100
         self.rockets_amount = 50
@@ -20,9 +19,12 @@ class Spaceship(Movable):
         if pg.joystick.get_count() == 1:
             self.gamepad = pg.joystick.Joystick(0)
             self.gamepad.init()
-        self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
+        self.rect = self.image.get_rect()
+        self.pos = init_pos
+        self.rect.topleft = (self.pos.x, self.pos.y)
         self.points = 0
         self.vel = Vec(0, 0)
+        self.direction = Vec(rd.randint(-10, 10), rd.randint(1, 10)).normalize()
 
     def select_ship_img(self):
         ship_count = 0

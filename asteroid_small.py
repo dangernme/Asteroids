@@ -10,19 +10,21 @@ class Asteroid3(AsteroidAbstract):
         self.speed = rd.randint(2, 3)
         self.damage = 5
         self.path = join('assets', 'asteroids', 'small')
-        self.images = [pg.image.load(join(self.path, "a30000.png")),
-                       pg.image.load(join(self.path, "a30001.png")),
-                       pg.image.load(join(self.path, "a30002.png")),
-                       pg.image.load(join(self.path, "a30003.png")),
-                       pg.image.load(join(self.path, "a30004.png")),
-                       pg.image.load(join(self.path, "a30005.png")),
-                       pg.image.load(join(self.path, "a30006.png")),
-                       pg.image.load(join(self.path, "a30007.png")),
-                       pg.image.load(join(self.path, "a30008.png")),
-                       pg.image.load(join(self.path, "a30009.png")),
-                       pg.image.load(join(self.path, "a30010.png")),
-                       pg.image.load(join(self.path, "a30011.png")),
-                       pg.image.load(join(self.path, "a30012.png")),
-                       pg.image.load(join(self.path, "a30013.png")),
-                       pg.image.load(join(self.path, "a30014.png")),
-                       pg.image.load(join(self.path, "a30015.png"))]
+        self.images = [pg.image.load(join(self.path, "a30000.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30001.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30002.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30003.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30004.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30005.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30006.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30007.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30008.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30009.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30010.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30011.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30012.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30013.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30014.png")).convert_alpha(),
+                       pg.image.load(join(self.path, "a30015.png")).convert_alpha()]
+        self.image = self.images[0]
+        self.rect = self.image.get_rect()

@@ -1,15 +1,17 @@
 import random as rd
 import pygame as pg
 from settings import *
-from movable import Movable
 Vec = pg.math.Vector2
 
-class AsteroidAbstract(Movable):
+class AsteroidAbstract(pg.sprite.Sprite):
     def __init__(self, init_pos):
-        super().__init__(init_pos, Vec(rd.randint(-10, 10), rd.randint(1, 10)).normalize())
+        super().__init__()
         self.animation_count = 0.0
-        self.rect = None
+        self.direction = Vec(rd.randint(-10, 10), rd.randint(1, 10)).normalize()
+        self.pos = init_pos
         self.image = None
+        self.rect = None
+        self.speed = None
 
     def update(self):
         self.animation_count += 0.1

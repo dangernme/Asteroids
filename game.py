@@ -21,12 +21,12 @@ class Game:
         pg.mixer.fadeout(10)
         pg.display.set_icon(pg.image.load(join('assets', 'Ships', 'Ship Full health.png')))
         pg.display.set_caption(TITLE)
+        self.screen = pg.display.set_mode(SIZE)
 
         # General variables
         self.player = Spaceship(Vec(TEXT_WIDTH + GAME_WIDTH // 2, HEIGHT // 2))
         self.other_sprites = pg.sprite.Group()
         self.active_rockets = pg.sprite.Group()
-        self.screen = pg.display.set_mode(SIZE)
         self.clock = pg.time.Clock()
         self.bg_image = pg.image.load(join('assets', 'background.png'))
         self.bg_image = pg.transform.scale(self.bg_image, (WIDTH - TEXT_WIDTH, HEIGHT))
@@ -175,11 +175,10 @@ class Game:
                             self.other_sprites.remove(collided_asteroid)
                             self.active_rockets.remove(rocket)
 
-
             self.screen.blit(self.bg_image, (TEXT_WIDTH, 0))
-            self.other_sprites.draw(self.screen)
             self.player.draw(self.screen)
             self.active_rockets.draw(self.screen)
+            self.other_sprites.draw(self.screen)
             self.hud.draw(self.screen, self.player)
 
             pg.display.flip()
