@@ -12,12 +12,13 @@ class AsteroidAbstract(pg.sprite.Sprite):
         self.image = None
         self.rect = None
         self.speed = None
+        self.damage = 0
 
     def update(self):
         self.animation_count += 0.1
         self.pos += self.speed * self.direction.normalize()
-        self.rect = self.images[int(self.animation_count) % 15].get_rect(x=self.pos.x, y=self.pos.y)
         self.image = self.images[int(self.animation_count) % 15]
+        self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
 
         if self.pos.x + self.rect.width / 2 < TEXT_WIDTH:
             self.pos.x = TEXT_WIDTH - self.rect.width / 2

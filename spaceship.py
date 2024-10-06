@@ -11,10 +11,17 @@ class Spaceship(pg.sprite.Sprite):
                        pg.image.load(join('assets', 'Ships', 'Ship Slight damage.png')).convert_alpha(),
                        pg.image.load(join('assets', 'Ships', 'Ship Damaged.png')).convert_alpha(),
                        pg.image.load(join('assets', 'Ships', 'Ship Very damaged.png')).convert_alpha()]
+
+        scale_factor = 1.4
+        for index, img in enumerate(self.images.copy()):
+            new_width = int(img.get_width() * scale_factor)
+            new_height = int(img.get_height() * scale_factor)
+            self.images[index] = pg.transform.scale(img, (new_width, new_height))
+
         self.image = self.images[0]
         self.health = 100
         self.rockets_amount = 50
-        self.speed = 0.5
+        self.speed = 0.7
         self.acc = Vec(0, 0)
         if pg.joystick.get_count() == 1:
             self.gamepad = pg.joystick.Joystick(0)
@@ -94,6 +101,7 @@ class Spaceship(pg.sprite.Sprite):
         self.speed = self.health / 200
 
         self.image = pg.transform.rotate(self.images[self.select_ship_img()], self.direction.angle_to(Vec(0, -1)))
+
         self.rect = self.image.get_rect(center=self.pos)
 
         self.health = max(self.health, 0)
