@@ -4,7 +4,7 @@ import pygame as pg
 from settings import *
 from asteroid_abstract import AsteroidAbstract
 
-class Asteroid1(AsteroidAbstract):
+class AsteroidA1(AsteroidAbstract):
     def __init__(self, init_pos):
         super().__init__(init_pos)
         self.speed = rd.randint(1, 5)

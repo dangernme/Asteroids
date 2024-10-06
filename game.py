@@ -6,8 +6,9 @@ from settings import *
 from hud import Hud
 from spaceship import Spaceship
 from munition import Munition
-from asteroid_1 import Asteroid1
-from asteroid_3 import Asteroid3
+from asteroid_a1 import AsteroidA1
+from asteroid_a3 import AsteroidA3
+from asteroid_d3 import AsteroidD3
 from medi import Medi
 from rocket import Rocket
 import helpers
@@ -119,11 +120,14 @@ class Game:
     def run(self):
         running = True
 
-        for _ in range(NUM_ASTEROIDS1):
-            self.other_sprites.add(Asteroid1(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
+        for _ in range(NUM_ASTEROIDSA1):
+            self.other_sprites.add(AsteroidA1(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
 
-        for _ in range(NUM_ASTEROIDS3):
-            self.other_sprites.add(Asteroid3(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
+        for _ in range(NUM_ASTEROIDSA3):
+            self.other_sprites.add(AsteroidA3(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
+
+        for _ in range(NUM_ASTEROIDSD3):
+            self.other_sprites.add(AsteroidD3(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
 
         while running:
             running = self.event_handler()
@@ -161,7 +165,7 @@ class Game:
                             self.other_sprites.remove(item)
                             self.medi_amount -= 1
 
-                        if isinstance(item, (Asteroid1, Asteroid3)):
+                        if isinstance(item, (AsteroidA1, AsteroidA3, AsteroidD3)):
                             for collided_asteroid in player_collided:
                                 self.crash_sound.play()
                                 self.generate_new_asteroid(collided_asteroid)
@@ -173,7 +177,7 @@ class Game:
                 if rocket_collided:
                     for rocket, collided_asteroids in rocket_collided.items():
                         for collided_asteroid in collided_asteroids:
-                            if isinstance(collided_asteroid, (Asteroid1, Asteroid3)):
+                            if isinstance(collided_asteroid, (AsteroidA1, AsteroidA3, AsteroidD3)):
                                 self.crash_sound.play()
                                 self.generate_new_asteroid(collided_asteroid)
                                 self.player.points += 1
