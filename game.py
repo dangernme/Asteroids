@@ -89,7 +89,22 @@ class Game:
         pg.quit()
         sys.exit()
 
-    def event_handler(self):
+    def timer_handler(self, events):
+        for event in events:
+            if event.type == self.rocket_refill_timer:
+                self.player.rockets_amount += 1
+            if event.type == self.player_heal_timer and self.player.health < 100:
+                self.player.health += 1
+            if event.type == self.munition_respawn_timer and self.muni_amount < MAX_SPAWNED_MUNITION + MAX_SPAWNED_MEDIS:
+                self.other_sprites.add(Munition(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                self.muni_amount +=1
+            if event.type == self.medi_respawn_timer and self.medi_amount < MAX_SPAWNED_MEDIS + MAX_SPAWNED_MUNITION:
+                self.other_sprites.add(Medi(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                self.medi_amount += 1
+            if event.type == self.game_end_timer:
+                self.game_over = True
+
+    def event_handler(self, events):
         keys = pg.key.get_pressed()
         axis_x = self.gamepad.get_axis(0)
         axis_y = self.gamepad.get_axis(1)
@@ -109,7 +124,7 @@ class Game:
         self.player.vel += self.player.acc
         self.player.pos += self.player.vel + 0.5 * self.player.acc
 
-        for event in pg.event.get():
+        for event in events:
             if event.type == pg.QUIT:
                 return False
 
@@ -118,19 +133,6 @@ class Game:
                     self.fire()
                 if event.type == pg.JOYBUTTONDOWN and event.button == BUTTON_A:
                     self.fire()
-
-                if event.type == self.rocket_refill_timer:
-                    self.player.rockets_amount += 1
-                if event.type == self.player_heal_timer and self.player.health < 100:
-                    self.player.health += 1
-                if event.type == self.munition_respawn_timer and self.muni_amount < MAX_SPAWNED_MUNITION + MAX_SPAWNED_MEDIS:
-                    self.other_sprites.add(Munition(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
-                    self.muni_amount +=1
-                if event.type == self.medi_respawn_timer and self.medi_amount < MAX_SPAWNED_MEDIS + MAX_SPAWNED_MUNITION:
-                    self.other_sprites.add(Medi(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
-                    self.medi_amount += 1
-                if event.type == self.game_end_timer:
-                    self.game_over = True
 
         return True
 
@@ -153,7 +155,10 @@ class Game:
             self.other_sprites.add(AsteroidD3(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
 
         while running:
-            running = self.event_handler()
+            events = pg.event.get()
+            running = self.event_handler(events)
+            self.timer_handler(events)
+
             if not self.game_over:
                 self.player.update()
                 if self.player.health <= 0:
