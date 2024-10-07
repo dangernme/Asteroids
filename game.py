@@ -36,9 +36,13 @@ class Game:
         self.medi_amount = 0
         self.hud = Hud()
 
+        if pg.joystick.get_count() == 1:
+            self.gamepad = pg.joystick.Joystick(0)
+            self.gamepad.init()
+
         self.init_timers()
         self.init_sound()
-        self.init_gamepad()
+
 
     def init_timers(self):
         self.rocket_refill_timer = pg.USEREVENT
@@ -79,11 +83,6 @@ class Game:
             else: #bottom
                 self.other_sprites.add(helpers.generate_asteroid(asteroid, Vec(rd.randint(TEXT_WIDTH, WIDTH), HEIGHT)))
 
-    def init_gamepad(self):
-        if pg.joystick.get_count() == 1:
-            gamepad = pg.joystick.Joystick(0)
-            gamepad.init()
-
     def close(self):
         pg.joystick.quit()
         pg.mixer.quit()
@@ -91,16 +90,34 @@ class Game:
         sys.exit()
 
     def event_handler(self):
+        keys = pg.key.get_pressed()
+        axis_x = self.gamepad.get_axis(0)
+        axis_y = self.gamepad.get_axis(1)
+        self.player.acc = Vec(0, 0)
+
+        if keys[pg.K_LEFT] or axis_x < -0.5:
+            self.player.turn_left()
+        if keys[pg.K_RIGHT] or axis_x > 0.5:
+            self.player.turn_right()
+        if keys[pg.K_UP] or axis_y < -0.5:
+            self.player.accelerate()
+        if keys[pg.K_DOWN] or axis_y > 0.5:
+            self.player.brake()
+        else:
+            self.player.decelerate()
+
+        self.player.vel += self.player.acc
+        self.player.pos += self.player.vel + 0.5 * self.player.acc
+
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return False
 
             if not self.game_over:
-                if (event.type == pg.KEYDOWN and event.key == pg.K_LCTRL) or (event.type == pg.JOYBUTTONDOWN and event.button == BUTTON_A):
-                    if self.player.rockets_amount > 0 and len(self.active_rockets) < MAX_ACTIVE_ROCKETS:
-                        self.player.rockets_amount -= 1
-                        self.pew_sound.play()
-                        self.active_rockets.add(Rocket(self.player.rect.center, self.player.direction.copy()))
+                if event.type == pg.KEYDOWN and event.key == pg.K_LCTRL:
+                    self.fire()
+                if event.type == pg.JOYBUTTONDOWN and event.button == BUTTON_A:
+                    self.fire()
 
                 if event.type == self.rocket_refill_timer:
                     self.player.rockets_amount += 1
@@ -116,6 +133,12 @@ class Game:
                     self.game_over = True
 
         return True
+
+    def fire(self):
+        if self.player.rockets_amount > 0 and len(self.active_rockets) < MAX_ACTIVE_ROCKETS:
+            self.player.rockets_amount -= 1
+            self.pew_sound.play()
+            self.active_rockets.add(Rocket(self.player.rect.center, self.player.direction.copy()))
 
     def run(self):
         running = True

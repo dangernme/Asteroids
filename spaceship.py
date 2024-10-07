@@ -23,10 +23,6 @@ class Spaceship(pg.sprite.Sprite):
         self.rockets_amount = 50
         self.speed = 0.7
         self.acc = Vec(0, 0)
-        if pg.joystick.get_count() == 1:
-            self.gamepad = pg.joystick.Joystick(0)
-            self.gamepad.init()
-
         self.rect = self.image.get_rect()
         self.pos = init_pos
         self.rect.topleft = (self.pos.x, self.pos.y)
@@ -70,34 +66,22 @@ class Spaceship(pg.sprite.Sprite):
             self.direction.y *= -1
             self.health -= 1
 
+    def turn_left(self):
+        self.direction = self.direction.rotate(-3).normalize()
+
+    def turn_right(self):
+        self.direction = self.direction.rotate(+3).normalize()
+
+    def accelerate(self):
+        self.acc += self.direction * self.speed
+
+    def decelerate(self):
+        self.acc += self.vel * FRICTION
+
+    def brake(self):
+        self.acc += self.vel * FRICTION * 2
+
     def update(self):
-        self.acc = Vec(0, 0)
-        keys = pg.key.get_pressed()
-
-        if pg.joystick.get_count() == 1:
-            axis_x = self.gamepad.get_axis(0)
-            axis_y = self.gamepad.get_axis(1)
-        else:
-            axis_x = 0
-            axis_y = 0
-
-        # handle direction
-        if keys[pg.K_LEFT] or axis_x < -0.5:
-            self.direction = self.direction.rotate(-3).normalize()
-        if keys[pg.K_RIGHT] or axis_x > 0.5:
-            self.direction = self.direction.rotate(+3).normalize()
-
-        # handle movement
-        if keys[pg.K_UP] or axis_y < -0.5:
-            self.acc += self.direction * self.speed
-        if keys[pg.K_DOWN] or axis_y > 0.5:
-            self.acc += self.vel * FRICTION * 2
-        else:
-            self.acc += self.vel * FRICTION
-
-        self.vel += self.acc
-        self.pos += self.vel + 0.5 * self.acc
-
         self.handle_border_collition()
         self.speed = self.health / 200
 
