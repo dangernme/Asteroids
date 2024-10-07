@@ -9,12 +9,16 @@ class Rocket(pg.sprite.Sprite):
         self.direction = init_dir.normalize()
         self.pos = init_pos
         self.speed = 1
-        self.image = pg.image.load(join('assets', 'Ships', 'Weapons', 'Rocket.png'))
+        self.image = pg.image.load(join('assets', 'Ships', 'Weapons', 'Rocket.png')).convert_alpha()
         self.image = pg.transform.rotate(self.image, self.direction.angle_to(Vec(0, -1)))
-        self.rect = self.image.get_rect(x=self.pos.x, y=self.pos.y)
-        self.pos -= (self.rect.width // 2, self.rect.height // 2) # Correct start position of rocket to ships center
-        self.speed = 10
+        self.rect = self.image.get_rect()
+        self.speed = 12
 
     def update(self):
-        self.rect = self.image.get_rect(x=self.pos.x, y = self.pos.y)
+        mask = self.image.get_bounding_rect()
+        self.image = self.image.subsurface(mask).copy()
+        self.rect = self.image.get_rect(center=self.pos)
         self.pos += self.speed * self.direction.normalize()
+
+    def draw(self, surface):
+        pg.draw.rect(surface, (0, 255, 0), self.rect, 1)

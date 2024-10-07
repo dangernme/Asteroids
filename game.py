@@ -100,7 +100,7 @@ class Game:
                     if self.player.rockets_amount > 0 and len(self.active_rockets) < MAX_ACTIVE_ROCKETS:
                         self.player.rockets_amount -= 1
                         self.pew_sound.play()
-                        self.active_rockets.add(Rocket(self.player.pos.copy(), self.player.direction.copy()))
+                        self.active_rockets.add(Rocket(self.player.rect.center, self.player.direction.copy()))
 
                 if event.type == self.rocket_refill_timer:
                     self.player.rockets_amount += 1
@@ -180,15 +180,17 @@ class Game:
                             if isinstance(collided_asteroid, (AsteroidA1, AsteroidA3, AsteroidD3)):
                                 self.crash_sound.play()
                                 self.generate_new_asteroid(collided_asteroid)
-                                self.player.points += 1
+                                self.player.points += collided_asteroid.points
                                 self.other_sprites.remove(collided_asteroid)
                                 self.active_rockets.remove(rocket)
 
                 self.screen.blit(self.bg_image, (TEXT_WIDTH, 0))
-                self.player.draw(self.screen)
                 self.active_rockets.draw(self.screen)
+                self.player.draw(self.screen)
                 self.other_sprites.draw(self.screen)
                 if DEBUG_MODE:
+                    for rocket in self.active_rockets:
+                        rocket.draw(self.screen)
                     for sprite in self.other_sprites:
                         sprite.draw(self.screen)
 

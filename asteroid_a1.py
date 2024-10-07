@@ -9,6 +9,7 @@ class AsteroidA1(AsteroidAbstract):
         super().__init__(init_pos)
         self.speed = rd.randint(1, 5)
         self.damage = 10
+        self.points = 2
         self.path = join('assets', 'asteroids', 'medium')
         self.images = [pg.image.load(join(self.path, "a10000.png")).convert_alpha(),
                        pg.image.load(join(self.path, "a10001.png")).convert_alpha(),
