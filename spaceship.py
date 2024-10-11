@@ -5,7 +5,7 @@ from settings import *
 Vec = pg.math.Vector2
 
 class Spaceship(pg.sprite.Sprite):
-    def __init__(self, init_pos):
+    def __init__(self):
         super().__init__()
         self.images = [pg.image.load(join('assets', 'Ships', 'Ship Full health.png')).convert_alpha(),
                        pg.image.load(join('assets', 'Ships', 'Ship Slight damage.png')).convert_alpha(),
@@ -20,12 +20,12 @@ class Spaceship(pg.sprite.Sprite):
 
         self.image = self.images[0]
         self.health = 100
-        self.rockets_amount = 50
+        self.rockets_amount = MAX_SHIP_ROCKETS
         self.speed = 0.7
         self.acc = Vec(0, 0)
         self.rect = self.image.get_rect()
-        self.pos = init_pos
-        self.rect.topleft = (self.pos.x, self.pos.y)
+        self.rect.center = (TEXT_WIDTH + (GAME_WIDTH // 2), HEIGHT // 2)
+
         self.points = 0
         self.vel = Vec(0, 0)
         self.direction = Vec(rd.randint(-10, 10), rd.randint(1, 10)).normalize()
@@ -45,23 +45,23 @@ class Spaceship(pg.sprite.Sprite):
         return ship_count
 
     def handle_border_collition(self):
-        if self.pos.x < TEXT_WIDTH:
-            self.pos.x = TEXT_WIDTH
+        if self.rect.left < TEXT_WIDTH:
+            self.rect.x = TEXT_WIDTH
             self.vel.x *= -1
             self.direction.x *= -1
             self.health -= 1
-        if self.pos.x > WIDTH:
-            self.pos.x = WIDTH
+        if self.rect.right > WIDTH:
+            self.rect.x = WIDTH - self.rect.width
             self.vel.x *= -1
             self.direction.x *= -1
             self.health -= 1
-        if self.pos.y < 0:
-            self.pos.y = 0
+        if self.rect.top < 0:
+            self.rect.y = 0
             self.vel.y *= -1
             self.direction.y *= -1
             self.health -= 1
-        if self.pos.y > HEIGHT:
-            self.pos.y = HEIGHT
+        if self.rect.bottom > HEIGHT:
+            self.rect.y = HEIGHT - self.rect.height
             self.vel.y *= -1
             self.direction.y *= -1
             self.health -= 1
@@ -82,18 +82,23 @@ class Spaceship(pg.sprite.Sprite):
         self.acc += self.vel * FRICTION * 2
 
     def update(self):
+        self.acc = Vec(0,0)
         self.handle_border_collition()
         self.speed = self.health / 200
+
+        self.vel += self.acc
+        self.rect.x += self.vel.x + 0.5 * self.acc.x
+        self.rect.y += self.vel.y + 0.5 * self.acc.y
 
         self.image = pg.transform.rotate(self.images[self.select_ship_img()], self.direction.angle_to(Vec(0, -1)))
         mask = self.image.get_bounding_rect()
         self.image = self.image.subsurface(mask).copy()
-        self.rect = self.image.get_rect(center=self.pos)
+        self.rect = self.image.get_rect(center=self.rect.center)
 
         self.health = max(self.health, 0)
 
     def draw(self, surface):
-        surface.blit(self.image, (self.pos.x - self.image.get_width() // 2, self.pos.y - self.image.get_height() // 2))
+        surface.blit(self.image, self.rect)
         if DEBUG_MODE:
             pg.draw.rect(surface, (255, 0, 0), self.rect, 2)
 

@@ -25,7 +25,7 @@ class Game:
         self.screen = pg.display.set_mode(SIZE)
 
         # General variables
-        self.player = Spaceship(Vec(TEXT_WIDTH + GAME_WIDTH // 2, HEIGHT // 2))
+        self.player = Spaceship()
         self.other_sprites = pg.sprite.Group()
         self.active_rockets = pg.sprite.Group()
         self.clock = pg.time.Clock()
@@ -104,11 +104,10 @@ class Game:
             if event.type == self.game_end_timer:
                 self.game_over = True
 
-    def event_handler(self, events):
+    def input_event_handler(self, events):
         keys = pg.key.get_pressed()
         axis_x = self.gamepad.get_axis(0)
         axis_y = self.gamepad.get_axis(1)
-        self.player.acc = Vec(0, 0)
 
         if keys[pg.K_LEFT] or axis_x < -0.5:
             self.player.turn_left()
@@ -120,9 +119,6 @@ class Game:
             self.player.brake()
         else:
             self.player.decelerate()
-
-        self.player.vel += self.player.acc
-        self.player.pos += self.player.vel + 0.5 * self.player.acc
 
         for event in events:
             if event.type == pg.QUIT:
@@ -142,6 +138,49 @@ class Game:
             self.pew_sound.play()
             self.active_rockets.add(Rocket(self.player.rect.center, self.player.direction.copy()))
 
+    def check_player_collision(self):
+        player_collided = pg.sprite.spritecollide(self.player, self.other_sprites, False)
+        if player_collided:
+            for item in player_collided:
+                if isinstance(item, Munition):
+                    self.ding_sound.play()
+                    if self.player.rockets_amount + item.amount > MAX_SHIP_ROCKETS:
+                        self.player.rockets_amount += MAX_SHIP_ROCKETS - self.player.rockets_amount
+                    else:
+                        self.player.rockets_amount += item.amount
+
+                    self.other_sprites.remove(item)
+                    self.muni_amount -= 1
+
+                if isinstance(item, Medi):
+                    self.ding_sound.play()
+                    if self.player.health + item.health > 100:
+                        self.player.health += 100 - self.player.health
+                    else:
+                        self.player.health += item.health
+
+                    self.other_sprites.remove(item)
+                    self.medi_amount -= 1
+
+                if isinstance(item, (AsteroidA1, AsteroidA3, AsteroidD3)):
+                    for collided_asteroid in player_collided:
+                        self.crash_sound.play()
+                        self.generate_new_asteroid(collided_asteroid)
+                        self.player.health -= collided_asteroid.damage
+                        self.other_sprites.remove(collided_asteroid)
+
+    def chec_rockets_collision(self):
+        rocket_collided = pg.sprite.groupcollide(self.active_rockets, self.other_sprites, False, False)
+        if rocket_collided:
+            for rocket, collided_asteroids in rocket_collided.items():
+                for collided_asteroid in collided_asteroids:
+                    if isinstance(collided_asteroid, (AsteroidA1, AsteroidA3, AsteroidD3)):
+                        self.crash_sound.play()
+                        self.generate_new_asteroid(collided_asteroid)
+                        self.player.points += collided_asteroid.points
+                        self.other_sprites.remove(collided_asteroid)
+                        self.active_rockets.remove(rocket)
+
     def run(self):
         running = True
 
@@ -156,7 +195,7 @@ class Game:
 
         while running:
             events = pg.event.get()
-            running = self.event_handler(events)
+            running = self.input_event_handler(events)
             self.timer_handler(events)
 
             if not self.game_over:
@@ -170,52 +209,14 @@ class Game:
                     if rocket.pos.x < TEXT_WIDTH or rocket.pos.x > WIDTH or rocket.pos.y < 0 or rocket.pos.y > HEIGHT:
                         self.active_rockets.remove(rocket)
 
-                player_collided = pg.sprite.spritecollide(self.player, self.other_sprites, False)
-                if player_collided:
-                    for item in player_collided:
-                        if isinstance(item, Munition):
-                            self.ding_sound.play()
-                            if self.player.rockets_amount + item.amount > MAX_SHIP_ROCKETS:
-                                self.player.rockets_amount += MAX_SHIP_ROCKETS - self.player.rockets_amount
-                            else:
-                                self.player.rockets_amount += item.amount
 
-                            self.other_sprites.remove(item)
-                            self.muni_amount -= 1
-
-                        if isinstance(item, Medi):
-                            self.ding_sound.play()
-                            if self.player.health + item.health > 100:
-                                self.player.health += 100 - self.player.health
-                            else:
-                                self.player.health += item.health
-
-                            self.other_sprites.remove(item)
-                            self.medi_amount -= 1
-
-                        if isinstance(item, (AsteroidA1, AsteroidA3, AsteroidD3)):
-                            for collided_asteroid in player_collided:
-                                self.crash_sound.play()
-                                self.generate_new_asteroid(collided_asteroid)
-                                self.player.health -= collided_asteroid.damage
-                                self.other_sprites.remove(collided_asteroid)
-
-
-                rocket_collided = pg.sprite.groupcollide(self.active_rockets, self.other_sprites, False, False)
-                if rocket_collided:
-                    for rocket, collided_asteroids in rocket_collided.items():
-                        for collided_asteroid in collided_asteroids:
-                            if isinstance(collided_asteroid, (AsteroidA1, AsteroidA3, AsteroidD3)):
-                                self.crash_sound.play()
-                                self.generate_new_asteroid(collided_asteroid)
-                                self.player.points += collided_asteroid.points
-                                self.other_sprites.remove(collided_asteroid)
-                                self.active_rockets.remove(rocket)
+                self.check_player_collision()
+                self.chec_rockets_collision()
 
                 self.screen.blit(self.bg_image, (TEXT_WIDTH, 0))
                 self.active_rockets.draw(self.screen)
-                self.player.draw(self.screen)
                 self.other_sprites.draw(self.screen)
+                self.player.draw(self.screen)
                 if DEBUG_MODE:
                     for rocket in self.active_rockets:
                         rocket.draw(self.screen)
