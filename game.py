@@ -209,7 +209,6 @@ class Game:
                     if rocket.pos.x < TEXT_WIDTH or rocket.pos.x > WIDTH or rocket.pos.y < 0 or rocket.pos.y > HEIGHT:
                         self.active_rockets.remove(rocket)
 
-
                 self.check_player_collision()
                 self.chec_rockets_collision()
 
