@@ -22,12 +22,12 @@ class Spaceship(pg.sprite.Sprite):
         self.health = 100
         self.rockets_amount = MAX_SHIP_ROCKETS
         self.speed = 0.7
-        self.acc = Vec(0, 0)
+        self.acceleration = Vec(0, 0)
         self.rect = self.image.get_rect()
         self.rect.center = (TEXT_WIDTH + (GAME_WIDTH // 2), HEIGHT // 2)
 
         self.points = 0
-        self.vel = Vec(0, 0)
+        self.velocity = Vec(0, 0)
         self.direction = Vec(rd.randint(-10, 10), rd.randint(1, 10)).normalize()
 
     def select_ship_img(self):
@@ -47,22 +47,22 @@ class Spaceship(pg.sprite.Sprite):
     def handle_border_collition(self):
         if self.rect.left < TEXT_WIDTH:
             self.rect.x = TEXT_WIDTH
-            self.vel.x *= -1
+            self.velocity.x *= -1
             self.direction.x *= -1
             self.health -= 1
         if self.rect.right > WIDTH:
             self.rect.x = WIDTH - self.rect.width
-            self.vel.x *= -1
+            self.velocity.x *= -1
             self.direction.x *= -1
             self.health -= 1
         if self.rect.top < 0:
             self.rect.y = 0
-            self.vel.y *= -1
+            self.velocity.y *= -1
             self.direction.y *= -1
             self.health -= 1
         if self.rect.bottom > HEIGHT:
             self.rect.y = HEIGHT - self.rect.height
-            self.vel.y *= -1
+            self.velocity.y *= -1
             self.direction.y *= -1
             self.health -= 1
 
@@ -73,22 +73,22 @@ class Spaceship(pg.sprite.Sprite):
         self.direction = self.direction.rotate(+3).normalize()
 
     def accelerate(self):
-        self.acc += self.direction * self.speed
+        self.acceleration += self.direction * self.speed
 
     def decelerate(self):
-        self.acc += self.vel * FRICTION
+        self.acceleration += self.velocity * FRICTION
 
     def brake(self):
-        self.acc += self.vel * FRICTION * 2
+        self.acceleration += self.velocity * FRICTION * 2
 
     def update(self):
-        self.acc = Vec(0,0)
+        self.acceleration = Vec(0,0)
         self.handle_border_collition()
         self.speed = self.health / 200
 
-        self.vel += self.acc
-        self.rect.x += self.vel.x + 0.5 * self.acc.x
-        self.rect.y += self.vel.y + 0.5 * self.acc.y
+        self.velocity += self.acceleration
+        self.rect.x += self.velocity.x + 0.5 * self.acceleration.x
+        self.rect.y += self.velocity.y + 0.5 * self.acceleration.y
 
         self.image = pg.transform.rotate(self.images[self.select_ship_img()], self.direction.angle_to(Vec(0, -1)))
         mask = self.image.get_bounding_rect()
@@ -103,4 +103,4 @@ class Spaceship(pg.sprite.Sprite):
             pg.draw.rect(surface, (255, 0, 0), self.rect, 2)
 
         if DIRECTION_LASER:
-            pg.draw.line(surface, RED, self.pos, self.direction * 20000, 1)
+            pg.draw.line(surface, RED, self.rect.center, self.direction * 20000, 1)
