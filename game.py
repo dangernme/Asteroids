@@ -105,6 +105,7 @@ class Game:
                 self.game_over = True
 
     def input_event_handler(self, events):
+        self.player.acceleration = Vec(0, 0)
         keys = pg.key.get_pressed()
         axis_x = self.gamepad.get_axis(0)
         axis_y = self.gamepad.get_axis(1)

@@ -82,7 +82,6 @@ class Spaceship(pg.sprite.Sprite):
         self.acceleration += self.velocity * FRICTION * 2
 
     def update(self):
-        self.acceleration = Vec(0,0)
         self.handle_border_collition()
         self.speed = self.health / 200
 
