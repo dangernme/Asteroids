@@ -21,6 +21,7 @@
         "--disable=C0115",
         "--disable=C0301",
         "--disable=W0401",
+        "--disable=R0903",
         "--disable=W0614"
     ]
 }
