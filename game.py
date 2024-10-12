@@ -6,12 +6,13 @@ from settings import *
 from hud import Hud
 from spaceship import Spaceship
 from munition import Munition
+from shield import Shield
 from asteroid_a1 import AsteroidA1
 from asteroid_a3 import AsteroidA3
 from asteroid_d3 import AsteroidD3
 from medi import Medi
 from rocket import Rocket
-from shield import Shield
+from shield_collect import ShieldCollect
 import helpers
 
 Vec = pg.math.Vector2
@@ -36,6 +37,8 @@ class Game:
         self.game_over = False
         self.muni_amount = 0
         self.medi_amount = 0
+        self.shield_amount = 0
+        self.shield_active = False
         self.shield = Shield()
         self.hud = Hud()
 
@@ -53,11 +56,14 @@ class Game:
         self.munition_respawn_timer = pg.USEREVENT + 2
         self.medi_respawn_timer = pg.USEREVENT + 3
         self.game_end_timer = pg.USEREVENT + 4
+        self.shield_respawn_timer = pg.USEREVENT + 5
+        self.shield_active_timer = pg.USEREVENT + 6
 
         pg.time.set_timer(self.rocket_refill_timer, ROCKET_REFILL_TIME)
         pg.time.set_timer(self.player_heal_timer, PLAYER_REPAIR_TIME)
         pg.time.set_timer(self.munition_respawn_timer, MUNITION_RESPAWN_TIME)
         pg.time.set_timer(self.medi_respawn_timer, MEDI_RESPAWN_TIME)
+        pg.time.set_timer(self.shield_respawn_timer, SHIELD_RESPAWN_TIME)
         pg.time.set_timer(self.game_end_timer, GAME_TIME)
 
     def init_sound(self):
@@ -98,12 +104,17 @@ class Game:
                 self.player.rockets_amount += 1
             if event.type == self.player_heal_timer and self.player.health < 100:
                 self.player.health += 1
-            if event.type == self.munition_respawn_timer and self.muni_amount < MAX_SPAWNED_MUNITION + MAX_SPAWNED_MEDIS:
+            if event.type == self.munition_respawn_timer and self.muni_amount < MAX_SPAWNED_MUNITION:
                 self.other_sprites.add(Munition(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
                 self.muni_amount +=1
-            if event.type == self.medi_respawn_timer and self.medi_amount < MAX_SPAWNED_MEDIS + MAX_SPAWNED_MUNITION:
+            if event.type == self.medi_respawn_timer and self.medi_amount < MAX_SPAWNED_MEDIS:
                 self.other_sprites.add(Medi(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
                 self.medi_amount += 1
+            if event.type == self.shield_respawn_timer and self.shield_amount < MAX_SPAWNED_SHIELD:
+                self.other_sprites.add(ShieldCollect(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                self.shield_amount +=1
+            if event.type == self.shield_active_timer:
+                self.shield_active = False
             if event.type == self.game_end_timer:
                 self.game_over = True
 
@@ -166,7 +177,13 @@ class Game:
                     self.other_sprites.remove(item)
                     self.medi_amount -= 1
 
-                if isinstance(item, (AsteroidA1, AsteroidA3, AsteroidD3)):
+                if isinstance(item, ShieldCollect):
+                    self.shield_active = True
+                    self.other_sprites.remove(item)
+                    self.shield_amount -= 1
+                    pg.time.set_timer(self.shield_active_timer, SHIELD_ACTIVE_TIME, 1)
+
+                if isinstance(item, (AsteroidA1, AsteroidA3, AsteroidD3)) and not self.shield_active:
                     for collided_asteroid in player_collided:
                         self.crash_sound.play()
                         self.generate_new_asteroid(collided_asteroid)
@@ -188,14 +205,9 @@ class Game:
     def run(self):
         running = True
 
-        for _ in range(NUM_ASTEROIDSA1):
-            self.other_sprites.add(AsteroidA1(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
-
-        for _ in range(NUM_ASTEROIDSA3):
-            self.other_sprites.add(AsteroidA3(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
-
-        for _ in range(NUM_ASTEROIDSD3):
-            self.other_sprites.add(AsteroidD3(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
+        for asteroid_class, num_asteroids in [(AsteroidA1, NUM_ASTEROIDSA1), (AsteroidA3, NUM_ASTEROIDSA3), (AsteroidD3, NUM_ASTEROIDSD3)]:
+            for _ in range(num_asteroids):
+                self.other_sprites.add(asteroid_class(Vec(rd.randint(TEXT_WIDTH, WIDTH), rd.randint(0, HEIGHT))))
 
         while running:
             events = pg.event.get()
@@ -203,13 +215,14 @@ class Game:
 
             if not self.game_over:
                 self.timer_handler(events)
-                self.player.update()
+                self.player.update(self.shield_active)
                 if self.player.health <= 0:
                     self.game_over = True
                 self.other_sprites.update()
                 self.active_rockets.update()
-                self.shield.rect.center = self.player.rect.center
-                self.shield.update()
+                if self.shield_active:
+                    self.shield.rect.center = self.player.rect.center
+                    self.shield.update()
 
                 for rocket in self.active_rockets:
                     if rocket.pos.x < TEXT_WIDTH or rocket.pos.x > WIDTH or rocket.pos.y < 0 or rocket.pos.y > HEIGHT:
@@ -221,7 +234,8 @@ class Game:
                 self.screen.blit(self.bg_image, (TEXT_WIDTH, 0))
                 self.active_rockets.draw(self.screen)
                 self.other_sprites.draw(self.screen)
-                self.shield.draw(self.screen)
+                if self.shield_active:
+                    self.shield.draw(self.screen)
                 self.player.draw(self.screen)
                 if DEBUG_MODE:
                     for rocket in self.active_rockets:

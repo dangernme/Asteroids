@@ -44,27 +44,31 @@ class Spaceship(pg.sprite.Sprite):
 
         return ship_count
 
-    def handle_border_collition(self):
+    def handle_border_collition(self, shield_active):
         if self.rect.left < TEXT_WIDTH:
             self.rect.x = TEXT_WIDTH
             self.velocity.x *= -1
             self.direction.x *= -1
-            self.health -= 1
+            if not shield_active:
+                self.health -= 1
         if self.rect.right > WIDTH:
             self.rect.x = WIDTH - self.rect.width
             self.velocity.x *= -1
             self.direction.x *= -1
-            self.health -= 1
+            if not shield_active:
+                self.health -= 1
         if self.rect.top < 0:
             self.rect.y = 0
             self.velocity.y *= -1
             self.direction.y *= -1
-            self.health -= 1
+            if not shield_active:
+                self.health -= 1
         if self.rect.bottom > HEIGHT:
             self.rect.y = HEIGHT - self.rect.height
             self.velocity.y *= -1
             self.direction.y *= -1
-            self.health -= 1
+            if not shield_active:
+                self.health -= 1
 
     def turn_left(self):
         self.direction = self.direction.rotate(-3).normalize()
@@ -81,8 +85,8 @@ class Spaceship(pg.sprite.Sprite):
     def brake(self):
         self.acceleration += self.velocity * FRICTION * 2
 
-    def update(self):
-        self.handle_border_collition()
+    def update(self, shield_active):
+        self.handle_border_collition(shield_active)
         self.speed = self.health / 200
 
         self.velocity += self.acceleration
