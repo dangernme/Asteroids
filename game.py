@@ -11,7 +11,9 @@ from asteroid_a3 import AsteroidA3
 from asteroid_d3 import AsteroidD3
 from medi import Medi
 from rocket import Rocket
+from shield import Shield
 import helpers
+
 Vec = pg.math.Vector2
 
 class Game:
@@ -34,6 +36,7 @@ class Game:
         self.game_over = False
         self.muni_amount = 0
         self.medi_amount = 0
+        self.shield = Shield()
         self.hud = Hud()
 
         if pg.joystick.get_count() == 1:
@@ -205,6 +208,8 @@ class Game:
                     self.game_over = True
                 self.other_sprites.update()
                 self.active_rockets.update()
+                self.shield.rect.center = self.player.rect.center
+                self.shield.update()
 
                 for rocket in self.active_rockets:
                     if rocket.pos.x < TEXT_WIDTH or rocket.pos.x > WIDTH or rocket.pos.y < 0 or rocket.pos.y > HEIGHT:
@@ -216,6 +221,7 @@ class Game:
                 self.screen.blit(self.bg_image, (TEXT_WIDTH, 0))
                 self.active_rockets.draw(self.screen)
                 self.other_sprites.draw(self.screen)
+                self.shield.draw(self.screen)
                 self.player.draw(self.screen)
                 if DEBUG_MODE:
                     for rocket in self.active_rockets:
