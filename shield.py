@@ -7,18 +7,23 @@ class Shield(pg.sprite.Sprite):
         super().__init__()
         self.image = pg.image.load(join('assets', 'Ships', 'Shields', 'RoundShield.png')).convert_alpha()
         self.frame = 0
-        self.current_image = self.image.subsurface(pg.Rect(0, 0, 64, 64))
+        self.scale_factor = 1.5
+
+        new_width = int(self.image.get_width() * self.scale_factor)
+        new_height = int(self.image.get_height() * self.scale_factor)
+        self.image = pg.transform.scale(self.image, (new_width, new_height))
+        self.current_image = self.image.subsurface(pg.Rect(0, 0, 64 * self.scale_factor, 64 * self.scale_factor))
         self.rect = self.current_image.get_rect()
         self.rect.center = (TEXT_WIDTH + (GAME_WIDTH // 2), HEIGHT // 2)
         self.last_update = pg.time.get_ticks()
 
     def update(self):
         now = pg.time.get_ticks()
-        if now - self.last_update > FPS * 2:
+        if now - self.last_update > FPS:
             self.last_update = now
-            self.frame = (self.frame) % 11
-            x = self.frame * 64
-            self.current_image = self.image.subsurface(pg.Rect(x, 0, 64, 64))
+            self.frame = (self.frame + 1) % 12
+            x = self.frame * 64 * self.scale_factor
+            self.current_image = self.image.subsurface(pg.Rect(x, 0, 64 * self.scale_factor, 64 * self.scale_factor))
             self.rect = self.current_image.get_rect()
 
             mask = self.current_image.get_bounding_rect()
