@@ -11,7 +11,7 @@ class Shield(pg.sprite.Sprite):
 
         new_width = int(self.image.get_width() * self.scale_factor)
         new_height = int(self.image.get_height() * self.scale_factor)
-        self.image = pg.transform.scale(self.image, (new_width, new_height))
+        self.image = pg.transform.smoothscale(self.image, (new_width, new_height))
         self.current_image = self.image.subsurface(pg.Rect(0, 0, 64 * self.scale_factor, 64 * self.scale_factor))
         self.rect = self.current_image.get_rect()
         self.rect.center = (TEXT_WIDTH + (GAME_WIDTH // 2), HEIGHT // 2)

@@ -200,9 +200,9 @@ class Game:
         while running:
             events = pg.event.get()
             running = self.input_event_handler(events)
-            self.timer_handler(events)
 
             if not self.game_over:
+                self.timer_handler(events)
                 self.player.update()
                 if self.player.health <= 0:
                     self.game_over = True
