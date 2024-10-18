@@ -121,8 +121,12 @@ class Game:
     def input_event_handler(self, events):
         self.player.acceleration = Vec(0, 0)
         keys = pg.key.get_pressed()
-        axis_x = self.gamepad.get_axis(0)
-        axis_y = self.gamepad.get_axis(1)
+        if pg.joystick.get_count() == 1:
+            axis_x = self.gamepad.get_axis(0)
+            axis_y = self.gamepad.get_axis(1)
+        else:
+            axis_x = 0
+            axis_y = 0
 
         if keys[pg.K_LEFT] or axis_x < -0.5:
             self.player.turn_left()
