@@ -6,7 +6,6 @@ from settings import *
 from hud import Hud
 from spaceship import Spaceship
 from munition import Munition
-from shield import Shield
 from asteroid_a1 import AsteroidA1
 from asteroid_a3 import AsteroidA3
 from asteroid_d3 import AsteroidD3
@@ -112,7 +111,7 @@ class Game:
                 self.other_sprites.add(ShieldCollect(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
                 self.shield_amount +=1
             if event.type == self.shield_active_timer:
-                self.player.deactivate_shield()
+                self.player.shield_active = False
             if event.type == self.game_end_timer:
                 self.game_over = True
 
@@ -180,12 +179,12 @@ class Game:
                     self.medi_amount -= 1
 
                 if isinstance(item, ShieldCollect):
-                    self.shield_active = True
+                    self.player.shield_active = True
                     self.other_sprites.remove(item)
                     self.shield_amount -= 1
                     pg.time.set_timer(self.shield_active_timer, SHIELD_ACTIVE_TIME, 1)
 
-                if isinstance(item, (AsteroidA1, AsteroidA3, AsteroidD3)) and not self.shield_active:
+                if isinstance(item, (AsteroidA1, AsteroidA3, AsteroidD3)) and not self.player.shield_active:
                     for collided_asteroid in player_collided:
                         self.crash_sound.play()
                         self.generate_new_asteroid(collided_asteroid)
