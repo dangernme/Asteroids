@@ -38,8 +38,6 @@ class Game:
         self.muni_amount = 0
         self.medi_amount = 0
         self.shield_amount = 0
-        self.shield_active = False
-        self.shield = Shield()
         self.hud = Hud()
 
         if pg.joystick.get_count() == 1:
@@ -114,7 +112,7 @@ class Game:
                 self.other_sprites.add(ShieldCollect(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
                 self.shield_amount +=1
             if event.type == self.shield_active_timer:
-                self.shield_active = False
+                self.player.deactivate_shield()
             if event.type == self.game_end_timer:
                 self.game_over = True
 
@@ -219,14 +217,11 @@ class Game:
 
             if not self.game_over:
                 self.timer_handler(events)
-                self.player.update(self.shield_active)
+                self.player.update()
                 if self.player.health <= 0:
                     self.game_over = True
                 self.other_sprites.update()
                 self.active_rockets.update()
-                if self.shield_active:
-                    self.shield.rect.center = self.player.rect.center
-                    self.shield.update()
 
                 for rocket in self.active_rockets:
                     if rocket.pos.x < TEXT_WIDTH or rocket.pos.x > WIDTH or rocket.pos.y < 0 or rocket.pos.y > HEIGHT:
@@ -238,8 +233,6 @@ class Game:
                 self.screen.blit(self.bg_image, (TEXT_WIDTH, 0))
                 self.active_rockets.draw(self.screen)
                 self.other_sprites.draw(self.screen)
-                if self.shield_active:
-                    self.shield.draw(self.screen)
                 self.player.draw(self.screen)
                 if DEBUG_MODE:
                     for rocket in self.active_rockets:
