@@ -55,6 +55,7 @@ class Game:
         self.game_end_timer = pg.USEREVENT + 4
         self.shield_respawn_timer = pg.USEREVENT + 5
         self.shield_active_timer = pg.USEREVENT + 6
+        self.fusillade_timer = pg.USEREVENT + 7
 
         pg.time.set_timer(self.rocket_refill_timer, ROCKET_REFILL_TIME)
         pg.time.set_timer(self.player_heal_timer, PLAYER_REPAIR_TIME)
@@ -112,6 +113,8 @@ class Game:
                 self.shield_amount +=1
             if event.type == self.shield_active_timer:
                 self.player.shield_active = False
+            if event.type == self.fusillade_timer:
+                self.fire()
             if event.type == self.game_end_timer:
                 self.game_over = True
 
@@ -143,6 +146,8 @@ class Game:
             if not self.game_over:
                 if event.type == pg.KEYDOWN and event.key == pg.K_LCTRL:
                     self.fire()
+                    if self.player.burst_fire:
+                        pg.time.set_timer(self.fusillade_timer, 100, 3)
                 if event.type == pg.JOYBUTTONDOWN and event.button == BUTTON_A:
                     self.fire()
 

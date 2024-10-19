@@ -28,6 +28,7 @@ class Spaceship(pg.sprite.Sprite):
         self.shield = Shield()
         self.shield_active = False
         self.rect.center = (TEXT_WIDTH + (GAME_WIDTH // 2), HEIGHT // 2)
+        self.burst_fire = False
 
         self.points = 0
         self.velocity = Vec(0, 0)
