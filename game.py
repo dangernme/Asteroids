@@ -6,6 +6,7 @@ from settings import *
 from hud import Hud
 from spaceship import Spaceship
 from collectables.rocket_std_icon import RocketStdIcon
+from collectables.rocket_burst_icon import RocketBurstIcon
 from collectables.shield_full_icon import ShieldFullIcon
 from collectables.health_icon import HealthIcon
 from asteroids.asteroid_a1 import AsteroidA1
@@ -36,6 +37,7 @@ class Game:
         self.game_over = False
         self.muni_amount = 0
         self.medi_amount = 0
+        self.burst_amount = 0
         self.shield_amount = 0
         self.hud = Hud()
 
@@ -55,13 +57,16 @@ class Game:
         self.game_end_timer = pg.USEREVENT + 4
         self.shield_respawn_timer = pg.USEREVENT + 5
         self.shield_active_timer = pg.USEREVENT + 6
-        self.fusillade_timer = pg.USEREVENT + 7
+        self.burst_respawn_timer = pg.USEREVENT + 7
+        self.burst_active_timer = pg.USEREVENT + 8
+        self.burst_fire_timer = pg.USEREVENT + 9
 
         pg.time.set_timer(self.rocket_refill_timer, ROCKET_REFILL_TIME)
         pg.time.set_timer(self.player_heal_timer, PLAYER_REPAIR_TIME)
         pg.time.set_timer(self.munition_respawn_timer, MUNITION_RESPAWN_TIME)
         pg.time.set_timer(self.medi_respawn_timer, MEDI_RESPAWN_TIME)
         pg.time.set_timer(self.shield_respawn_timer, SHIELD_RESPAWN_TIME)
+        pg.time.set_timer(self.burst_respawn_timer, BURST_RESPAWN_TIME)
         pg.time.set_timer(self.game_end_timer, GAME_TIME)
 
     def init_sound(self):
@@ -113,7 +118,12 @@ class Game:
                 self.shield_amount +=1
             if event.type == self.shield_active_timer:
                 self.player.shield_active = False
-            if event.type == self.fusillade_timer:
+            if event.type == self.burst_respawn_timer and self.burst_amount < MAX_SPAWNED_BURSTS:
+                    self.other_sprites.add(RocketBurstIcon(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                    self.burst_amount += 1
+            if event.type == self.burst_active_timer:
+                self.player.burst_fire = False
+            if event.type == self.burst_fire_timer:
                 self.fire()
             if event.type == self.game_end_timer:
                 self.game_over = True
@@ -147,9 +157,11 @@ class Game:
                 if event.type == pg.KEYDOWN and event.key == pg.K_LCTRL:
                     self.fire()
                     if self.player.burst_fire:
-                        pg.time.set_timer(self.fusillade_timer, 100, 3)
+                        pg.time.set_timer(self.burst_fire_timer, 100, 3)
                 if event.type == pg.JOYBUTTONDOWN and event.button == BUTTON_A:
                     self.fire()
+                    if self.player.burst_fire:
+                        pg.time.set_timer(self.burst_fire_timer, 100, 3)
 
         return True
 
@@ -172,7 +184,13 @@ class Game:
 
                     self.other_sprites.remove(item)
                     self.muni_amount -= 1
-
+                if isinstance(item, RocketBurstIcon):
+                    self.ding_sound.play()
+                    self.player.burst_fire = True
+                    self.other_sprites.remove(item)
+                    self.burst_amount -= 1
+                    self.player.rockets_amount = MAX_SHIP_ROCKETS
+                    pg.time.set_timer(self.burst_active_timer, BURST_ACTIVE_TIME, 1)
                 if isinstance(item, HealthIcon):
                     self.ding_sound.play()
                     if self.player.health + item.health > 100:
@@ -196,7 +214,7 @@ class Game:
                         self.player.health -= collided_asteroid.damage
                         self.other_sprites.remove(collided_asteroid)
 
-    def chec_rockets_collision(self):
+    def check_rockets_collision(self):
         rocket_collided = pg.sprite.groupcollide(self.active_rockets, self.other_sprites, False, False)
         if rocket_collided:
             for rocket, collided_asteroids in rocket_collided.items():
@@ -232,7 +250,7 @@ class Game:
                         self.active_rockets.remove(rocket)
 
                 self.check_player_collision()
-                self.chec_rockets_collision()
+                self.check_rockets_collision()
 
                 self.screen.blit(self.bg_image, (TEXT_WIDTH, 0))
                 self.active_rockets.draw(self.screen)

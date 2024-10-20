@@ -9,7 +9,7 @@ class RocketStd(pg.sprite.Sprite):
         self.direction = init_dir.normalize()
         self.pos = init_pos
         self.speed = 1
-        self.image = pg.image.load(join('assets', 'Ships', 'Weapons', 'Rocket.png')).convert_alpha()
+        self.image = pg.image.load(join('assets', 'Ships', 'Weapons', 'rocket_std.png')).convert_alpha()
         self.image = pg.transform.rotate(self.image, self.direction.angle_to(Vec(0, -1)))
         self.rect = self.image.get_rect()
         self.speed = 12
