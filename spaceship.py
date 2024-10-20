@@ -72,7 +72,11 @@ class Spaceship(pg.sprite.Sprite):
             self.velocity.y *= -1
             self.direction.y *= -1
             self.health -= malus
-        self.rect.center = current_rect.center
+
+        if self.shield_active:
+            self.shield.rect.center = current_rect.center
+        else:
+            self.rect = current_rect
 
     def turn_left(self):
         self.direction = self.direction.rotate(-3).normalize()

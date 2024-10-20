@@ -27,5 +27,93 @@ class TestSpaceship(unittest.TestCase):
         self.ship.health = 20
         self.assertEqual(self.ship.select_ship_img(), 3)
 
+    def test_acceleration(self):
+        self.ship.acceleration = Vec(0, 0)
+        self.ship.accelerate()
+        self.assertEqual(self.ship.acceleration, self.ship.direction * 0.7)
+
+    def test_decceleration(self):
+        self.ship.acceleration = Vec(2, 2)
+        self.ship.velocity = Vec(2, 2)
+        self.ship.decelerate()
+        self.assertEqual(self.ship.acceleration, (Vec(2, 2) + self.ship.velocity *  FRICTION))
+
+
+    def test_brake(self):
+        self.ship.acceleration = Vec(2, 2)
+        self.ship.velocity = Vec(2, 2)
+        self.ship.brake()
+        self.assertEqual(self.ship.acceleration, (Vec(2, 2) + self.ship.velocity *  FRICTION * 2))
+
+    def test_turn_left(self):
+        self.ship.direction = Vec(1, 0)
+        self.ship.turn_left()
+        self.assertEqual(self.ship.direction, Vec(1, 0).rotate(-3).normalize())
+
+    def test_turn_right(self):
+        self.ship.direction = Vec(1, 0)
+        self.ship.turn_right()
+        self.assertEqual(self.ship.direction, Vec(1, 0).rotate(+3).normalize())
+
+    def test_border_collision_left(self):
+        self.ship.shield_active = True
+        self.ship.shield.rect = pg.Rect(TEXT_WIDTH - 1, HEIGHT // 2, 10, 10)
+        self.ship.direction = Vec(-1, 0)
+        self.ship.velocity = Vec(-1, 0)
+        self.ship.handle_border_collition()
+        self.assertEqual(self.ship.shield.rect.left, TEXT_WIDTH)
+        self.assertEqual(self.ship.velocity.x, 1)
+        self.assertEqual(self.ship.direction.x, 1)
+        self.assertEqual(self.ship.health, 100)
+
+        self.ship.shield_active = False
+        self.ship.rect = pg.Rect(TEXT_WIDTH - 1, HEIGHT // 2, 10, 10)
+        self.ship.direction = Vec(-1, 0)
+        self.ship.velocity = Vec(-1, 0)
+        self.ship.handle_border_collition()
+        self.assertEqual(self.ship.rect.left, TEXT_WIDTH)
+        self.assertEqual(self.ship.velocity.x, 1)
+        self.assertEqual(self.ship.direction.x, 1)
+        self.assertEqual(self.ship.health, 99)
+
+    def test_border_collision_right(self):
+        self.ship.shield_active = True
+        self.ship.rect = pg.Rect(WIDTH - 9, HEIGHT // 2, 10, 10)
+        self.ship.direction = Vec(1, 0)
+        self.ship.velocity = Vec(1, 0)
+        self.ship.handle_border_collition()
+        self.assertEqual(self.ship.rect.right, WIDTH - 10)
+        self.assertEqual(self.ship.velocity.x, -1)
+        self.assertEqual(self.ship.direction.x, -1)
+        self.assertEqual(self.ship.health, 100)
+
+        self.ship.shield_active = False
+        self.ship.rect = pg.Rect(WIDTH - 9, HEIGHT // 2, 10, 10)
+        self.ship.direction = Vec(1, 0)
+        self.ship.velocity = Vec(1, 0)
+        self.ship.handle_border_collition()
+        self.assertEqual(self.ship.rect.right, WIDTH - 10)
+        self.assertEqual(self.ship.velocity.x, -1)
+        self.assertEqual(self.ship.direction.x, -1)
+        self.assertEqual(self.ship.health, 99)
+
+    # self.ship.rect = pg.Rect(0, 0, 10, 10)
+    # self.ship.direction = Vec(0, 1)
+    # self.ship.velocity = Vec(0, 1)
+    # self.ship.handle_border_collition()
+    # self.assertEqual(self.ship.rect.y, 0)
+    # self.assertEqual(self.ship.velocity.y, -1)
+    # self.assertEqual(self.ship.direction.y, -1)
+    # self.assertEqual(self.ship.health, 97)
+
+    # self.ship.rect = pg.Rect(0, HEIGHT, 10, 10)
+    # self.ship.direction = Vec(0, -1)
+    # self.ship.velocity = Vec(0, -1)
+    # self.ship.handle_border_collition()
+    # self.assertEqual(self.ship.rect.y, HEIGHT - 10)
+    # self.assertEqual(self.ship.velocity.y, 1)
+    # self.assertEqual(self.ship.direction.y, 1)
+    # self.assertEqual(self.ship.health, 96)
+
 if __name__ == '__main__':
     unittest.main()
