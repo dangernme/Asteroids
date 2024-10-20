@@ -2,7 +2,7 @@ from os.path import join
 import random as rd
 import pygame as pg
 from settings import *
-from asteroid_abstract import AsteroidAbstract
+from asteroids.asteroid_abstract import AsteroidAbstract
 
 class AsteroidD3(AsteroidAbstract):
     def __init__(self, init_pos):

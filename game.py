@@ -5,13 +5,13 @@ import pygame as pg
 from settings import *
 from hud import Hud
 from spaceship import Spaceship
-from munition import Munition
-from asteroid_a1 import AsteroidA1
-from asteroid_a3 import AsteroidA3
-from asteroid_d3 import AsteroidD3
-from medi import Medi
-from rocket import Rocket
-from shield_collect import ShieldCollect
+from collectables.rocket_std_icon import RocketStdIcon
+from collectables.shield_full_icon import ShieldFullIcon
+from collectables.health_icon import HealthIcon
+from asteroids.asteroid_a1 import AsteroidA1
+from asteroids.asteroid_a3 import AsteroidA3
+from asteroids.asteroid_d3 import AsteroidD3
+from rocket_std import RocketStd
 import helpers
 
 Vec = pg.math.Vector2
@@ -103,13 +103,13 @@ class Game:
             if event.type == self.player_heal_timer and self.player.health < 100:
                 self.player.health += 1
             if event.type == self.munition_respawn_timer and self.muni_amount < MAX_SPAWNED_MUNITION:
-                self.other_sprites.add(Munition(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                self.other_sprites.add(RocketStdIcon(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
                 self.muni_amount +=1
             if event.type == self.medi_respawn_timer and self.medi_amount < MAX_SPAWNED_MEDIS:
-                self.other_sprites.add(Medi(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                self.other_sprites.add(HealthIcon(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
                 self.medi_amount += 1
             if event.type == self.shield_respawn_timer and self.shield_amount < MAX_SPAWNED_SHIELD:
-                self.other_sprites.add(ShieldCollect(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                self.other_sprites.add(ShieldFullIcon(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
                 self.shield_amount +=1
             if event.type == self.shield_active_timer:
                 self.player.shield_active = False
@@ -157,13 +157,13 @@ class Game:
         if self.player.rockets_amount > 0 and len(self.active_rockets) < MAX_ACTIVE_ROCKETS:
             self.player.rockets_amount -= 1
             self.pew_sound.play()
-            self.active_rockets.add(Rocket(self.player.rect.center, self.player.direction.copy()))
+            self.active_rockets.add(RocketStd(self.player.rect.center, self.player.direction.copy()))
 
     def check_player_collision(self):
         player_collided = pg.sprite.spritecollide(self.player, self.other_sprites, False)
         if player_collided:
             for item in player_collided:
-                if isinstance(item, Munition):
+                if isinstance(item, RocketStdIcon):
                     self.ding_sound.play()
                     if self.player.rockets_amount + item.amount > MAX_SHIP_ROCKETS:
                         self.player.rockets_amount += MAX_SHIP_ROCKETS - self.player.rockets_amount
@@ -173,7 +173,7 @@ class Game:
                     self.other_sprites.remove(item)
                     self.muni_amount -= 1
 
-                if isinstance(item, Medi):
+                if isinstance(item, HealthIcon):
                     self.ding_sound.play()
                     if self.player.health + item.health > 100:
                         self.player.health += 100 - self.player.health
@@ -183,7 +183,7 @@ class Game:
                     self.other_sprites.remove(item)
                     self.medi_amount -= 1
 
-                if isinstance(item, ShieldCollect):
+                if isinstance(item, ShieldFullIcon):
                     self.player.shield_active = True
                     self.other_sprites.remove(item)
                     self.shield_amount -= 1

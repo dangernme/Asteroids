@@ -2,7 +2,7 @@ from os.path import join
 import pygame as pg
 from settings import *
 
-class Shield(pg.sprite.Sprite):
+class ShieldFull(pg.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pg.image.load(join('assets', 'Ships', 'Shields', 'RoundShield.png')).convert_alpha()

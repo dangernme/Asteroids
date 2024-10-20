@@ -3,7 +3,7 @@ import random as rd
 import pygame as pg
 from settings import *
 
-class Medi(pg.sprite.Sprite):
+class HealthIcon(pg.sprite.Sprite):
     def __init__(self, init_pos):
         super().__init__()
         self.pos = init_pos

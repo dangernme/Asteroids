@@ -3,7 +3,7 @@ import pygame as pg
 from settings import *
 Vec = pg.math.Vector2
 
-class Rocket(pg.sprite.Sprite):
+class RocketStd(pg.sprite.Sprite):
     def __init__(self, init_pos, init_dir):
         super().__init__()
         self.direction = init_dir.normalize()

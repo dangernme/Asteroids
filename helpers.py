@@ -1,6 +1,6 @@
-from asteroid_a1 import AsteroidA1
-from asteroid_a3 import AsteroidA3
-from asteroid_d3 import AsteroidD3
+from asteroids.asteroid_a1 import AsteroidA1
+from asteroids.asteroid_a3 import AsteroidA3
+from asteroids.asteroid_d3 import AsteroidD3
 
 def generate_asteroid(asteroid, pos):
     if isinstance(asteroid, AsteroidA1):

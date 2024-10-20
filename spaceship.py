@@ -2,7 +2,7 @@ from os.path import join
 import random as rd
 import pygame as pg
 from settings import *
-from shield import Shield
+from shield_full import ShieldFull
 Vec = pg.math.Vector2
 
 class Spaceship(pg.sprite.Sprite):
@@ -25,7 +25,7 @@ class Spaceship(pg.sprite.Sprite):
         self.speed = 0.7
         self.acceleration = Vec(0, 0)
         self.rect = self.image.get_rect()
-        self.shield = Shield()
+        self.shield = ShieldFull()
         self.shield_active = False
         self.rect.center = (TEXT_WIDTH + (GAME_WIDTH // 2), HEIGHT // 2)
         self.burst_fire = False
