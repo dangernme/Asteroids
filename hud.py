@@ -21,7 +21,7 @@ class Hud():
             bonus_points = player.health // 15
             surface.blit(self.large_font.render("Game Over", True, RED), (500, 200))
             surface.blit(self.large_font.render(f"Points:{player.points} ", True, RED), (540, 300))
-            surface.blit(self.large_font.render(f"Health:{player.health} Bonus:{bonus_points} ", True, RED), (300, 400))
+            surface.blit(self.large_font.render(f"Health:{player.health}% Bonus:{bonus_points} ", True, RED), (290, 400))
             surface.blit(self.large_font.render(f"Total Points:{player.points + bonus_points} ", True, RED), (420, 500))
             pg.draw.rect(surface, (50,50,50), pg.Rect(0,0, TEXT_WIDTH, HEIGHT))
         else:
@@ -29,6 +29,10 @@ class Hud():
             pg.draw.rect(surface, (50,50,50), pg.Rect(0,0, TEXT_WIDTH, HEIGHT))
             surface.blit(self.medium_font.render(f"Points {player.points}", True, TEXT_COLOR), (10, 10))
             surface.blit(self.medium_font.render(f"Time {((GAME_TIME / 1000) - pg.time.get_ticks() / 1000) + 0.1:.0f}", True, TEXT_COLOR), (10, 40))
+            if player.shield_active:
+                surface.blit(self.small_font.render('Shield active', True, RED), (10, 70))
+            if player.burst_fire_active:
+                surface.blit(self.small_font.render('Burst fire active', True, RED), (10, 90))
 
             bar_width = int(GAME_WIDTH * 0.5)
             # Health bar

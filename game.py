@@ -110,7 +110,7 @@ class Game:
                 self.other_sprites.add(RocketBurstIcon(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
                 self.burst_amount += 1
             if event.type == self.burst_active_timer:
-                self.player.burst_fire = False
+                self.player.burst_fire_active = False
             if event.type == self.burst_fire_timer:
                 self.fire()
             if event.type == self.game_end_timer:
@@ -146,7 +146,7 @@ class Game:
             if not self.game_over:
                 if (event.type == pg.KEYDOWN and event.key == pg.K_LCTRL) or (event.type == pg.JOYBUTTONDOWN and event.button == BUTTON_A):
                     self.fire()
-                    if self.player.burst_fire:
+                    if self.player.burst_fire_active:
                         pg.time.set_timer(self.burst_fire_timer, 100, 3)
 
         return True
@@ -172,7 +172,7 @@ class Game:
                     self.muni_amount -= 1
                 if isinstance(item, RocketBurstIcon):
                     self.ding_sound.play()
-                    self.player.burst_fire = True
+                    self.player.burst_fire_active = True
                     self.other_sprites.remove(item)
                     self.burst_amount -= 1
                     self.player.rockets_amount = MAX_SHIP_ROCKETS
