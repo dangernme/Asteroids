@@ -11,6 +11,3 @@ def generate_asteroid(asteroid, pos):
         return AsteroidD3(pos)
     print("Invalid asteroid type")
     return None
-
-def scale_range (_input, old_min, old_max, new_min, new_max):
-    return ( (_input - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min

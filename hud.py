@@ -32,13 +32,13 @@ class Hud():
 
             bar_width = int(GAME_WIDTH * 0.5)
             # Health bar
-            h_width = helpers.scale_range(player.health, 0, 100, 0, bar_width - 4)
+            h_width = int(helpers.interp(player.health, [0, 100], [0, bar_width - 4]))
             pg.draw.rect(surface, BLUE, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - bar_width // 2, 10, bar_width, 20))
             pg.draw.rect(surface, GREEN, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - (bar_width // 2) + 2, 12, h_width, 16))
             surface.blit(self.small_font.render('Health', True, RED), (TEXT_WIDTH + (GAME_WIDTH // 2), 10))
 
             # Munition bar
-            h_width = helpers.scale_range(player.rockets_amount, 0, MAX_SHIP_ROCKETS, 0, bar_width - 4)
+            h_width = int(helpers.interp(player.rockets_amount, [0, 100], [0, bar_width - 4]))
             pg.draw.rect(surface, BLUE, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - bar_width // 2, HEIGHT - 30, bar_width, 20))
             pg.draw.rect(surface, GREEN, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - (bar_width // 2) + 2, HEIGHT - 28, h_width, 16))
             surface.blit(self.small_font.render('Rockets', True, RED), (TEXT_WIDTH + (GAME_WIDTH // 2), HEIGHT - 30))
