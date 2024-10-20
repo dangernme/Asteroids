@@ -13,11 +13,8 @@ class Spaceship(pg.sprite.Sprite):
                        pg.image.load(join('assets', 'Ships', 'Ship Damaged.png')).convert_alpha(),
                        pg.image.load(join('assets', 'Ships', 'Ship Very damaged.png')).convert_alpha()]
 
-        scale_factor = 1.4
         for index, img in enumerate(self.images.copy()):
-            new_width = int(img.get_width() * scale_factor)
-            new_height = int(img.get_height() * scale_factor)
-            self.images[index] = pg.transform.scale(img, (new_width, new_height))
+            self.images[index] = pg.transform.scale_by(img, 1.4)
 
         self.image = self.images[0]
         self.health = 100
