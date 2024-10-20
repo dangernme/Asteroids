@@ -119,8 +119,8 @@ class Game:
             if event.type == self.shield_active_timer:
                 self.player.shield_active = False
             if event.type == self.burst_respawn_timer and self.burst_amount < MAX_SPAWNED_BURSTS:
-                    self.other_sprites.add(RocketBurstIcon(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
-                    self.burst_amount += 1
+                self.other_sprites.add(RocketBurstIcon(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
+                self.burst_amount += 1
             if event.type == self.burst_active_timer:
                 self.player.burst_fire = False
             if event.type == self.burst_fire_timer:
