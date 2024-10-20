@@ -115,7 +115,7 @@ class Game:
                 self.medi_amount += 1
             if event.type == self.shield_respawn_timer and self.shield_amount < MAX_SPAWNED_SHIELD:
                 self.other_sprites.add(ShieldFullIcon(Vec(rd.randint(TEXT_WIDTH + 100, WIDTH - 100), rd.randint(100, HEIGHT -100))))
-                self.shield_amount +=1
+                self.shield_amount += 1
             if event.type == self.shield_active_timer:
                 self.player.shield_active = False
             if event.type == self.burst_respawn_timer and self.burst_amount < MAX_SPAWNED_BURSTS:
@@ -154,11 +154,7 @@ class Game:
                 return False
 
             if not self.game_over:
-                if event.type == pg.KEYDOWN and event.key == pg.K_LCTRL:
-                    self.fire()
-                    if self.player.burst_fire:
-                        pg.time.set_timer(self.burst_fire_timer, 100, 3)
-                if event.type == pg.JOYBUTTONDOWN and event.button == BUTTON_A:
+                if (event.type == pg.KEYDOWN and event.key == pg.K_LCTRL) or (event.type == pg.JOYBUTTONDOWN and event.button == BUTTON_A):
                     self.fire()
                     if self.player.burst_fire:
                         pg.time.set_timer(self.burst_fire_timer, 100, 3)
