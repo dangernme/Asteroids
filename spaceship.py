@@ -24,7 +24,7 @@ class Spaceship(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.shield = ShieldFull()
         self.shield_active = False
-        self.rect.center = (TEXT_WIDTH + (GAME_WIDTH // 2), HEIGHT // 2)
+        self.rect.center = (CENTER, HEIGHT // 2)
         self.burst_fire_active = False
 
         self.points = 0

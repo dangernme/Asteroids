@@ -19,10 +19,15 @@ class Hud():
                 self.game_over_sound.play()
                 self.game_over_sound_played = True
             bonus_points = player.health // 15
-            surface.blit(self.large_font.render("Game Over", True, RED), (500, 200))
-            surface.blit(self.large_font.render(f"Points:{player.points} ", True, RED), (540, 300))
-            surface.blit(self.large_font.render(f"Health:{player.health}% Bonus:{bonus_points} ", True, RED), (290, 400))
-            surface.blit(self.large_font.render(f"Total Points:{player.points + bonus_points} ", True, RED), (420, 500))
+
+            game_over_text = self.large_font.render("Game Over", True, RED)
+            points_text = self.large_font.render(f"Points:{player.points} ", True, RED)
+            health_text = self.large_font.render(f"Health:{player.health}% Bonus:{bonus_points} ", True, RED)
+            total_points_text = self.large_font.render(f"Total Points:{player.points + bonus_points} ", True, RED)
+            surface.blit(game_over_text, (CENTER - game_over_text.get_width() // 2, 200))
+            surface.blit(points_text, (CENTER - points_text.get_width() // 2, 300))
+            surface.blit(health_text, (CENTER - health_text.get_width() // 2, 400))
+            surface.blit(total_points_text, (CENTER - total_points_text.get_width() // 2, 500))
             pg.draw.rect(surface, (50,50,50), pg.Rect(0,0, TEXT_WIDTH, HEIGHT))
         else:
             # Text area
@@ -37,12 +42,12 @@ class Hud():
             bar_width = int(GAME_WIDTH * 0.5)
             # Health bar
             h_width = int(interp(player.health, [0, 100], [0, bar_width - 4]))
-            pg.draw.rect(surface, BLUE, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - bar_width // 2, 10, bar_width, 20))
-            pg.draw.rect(surface, GREEN, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - (bar_width // 2) + 2, 12, h_width, 16))
-            surface.blit(self.small_font.render('Health', True, RED), (TEXT_WIDTH + (GAME_WIDTH // 2), 10))
+            pg.draw.rect(surface, BLUE, pg.Rect(CENTER - bar_width // 2, 10, bar_width, 20))
+            pg.draw.rect(surface, GREEN, pg.Rect(CENTER - (bar_width // 2) + 2, 12, h_width, 16))
+            surface.blit(self.small_font.render('Health', True, RED), (CENTER, 10))
 
             # Munition bar
             h_width = int(interp(player.rockets_amount, [0, 100], [0, bar_width - 4]))
-            pg.draw.rect(surface, BLUE, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - bar_width // 2, HEIGHT - 30, bar_width, 20))
-            pg.draw.rect(surface, GREEN, pg.Rect(TEXT_WIDTH + (GAME_WIDTH // 2) - (bar_width // 2) + 2, HEIGHT - 28, h_width, 16))
-            surface.blit(self.small_font.render('Rockets', True, RED), (TEXT_WIDTH + (GAME_WIDTH // 2), HEIGHT - 30))
+            pg.draw.rect(surface, BLUE, pg.Rect(CENTER - bar_width // 2, HEIGHT - 30, bar_width, 20))
+            pg.draw.rect(surface, GREEN, pg.Rect(CENTER - (bar_width // 2) + 2, HEIGHT - 28, h_width, 16))
+            surface.blit(self.small_font.render('Rockets', True, RED), (CENTER, HEIGHT - 30))
