@@ -9,11 +9,11 @@ from collectables.rocket_std_icon import RocketStdIcon
 from collectables.rocket_burst_icon import RocketBurstIcon
 from collectables.shield_full_icon import ShieldFullIcon
 from collectables.health_icon import HealthIcon
+from asteroids.asteroid_factory import AsteroidFactory
 from asteroids.asteroid_a1 import AsteroidA1
 from asteroids.asteroid_a3 import AsteroidA3
 from asteroids.asteroid_d3 import AsteroidD3
 from rocket_std import RocketStd
-import helpers
 
 Vec = pg.math.Vector2
 
@@ -41,13 +41,14 @@ class Game:
         self.shield_amount = 0
         self.hud = Hud()
 
-        if pg.joystick.get_count() == 1:
-            self.gamepad = pg.joystick.Joystick(0)
-            self.gamepad.init()
-
+        self.init_gamepad()
         self.init_timers()
         self.init_sound()
 
+    def init_gamepad(self):
+        if pg.joystick.get_count() == 1:
+            self.gamepad = pg.joystick.Joystick(0)
+            self.gamepad.init()
 
     def init_timers(self):
         self.rocket_refill_timer = pg.USEREVENT
@@ -81,19 +82,6 @@ class Game:
         self.pew_sound.set_volume(0.1)
         self.crash_sound.set_volume(0.1)
         self.ding_sound.set_volume(0.1)
-
-    def generate_new_asteroid(self, asteroid):
-        if ASTEROIDS_RESPAWN:
-            random_start = rd.randint(0,4)
-
-            if random_start == 0: # left
-                self.other_sprites.add(helpers.generate_asteroid(asteroid, Vec(0, rd.randint(0, HEIGHT))))
-            elif random_start == 1: # top
-                self.other_sprites.add(helpers.generate_asteroid(asteroid, Vec(rd.randint(TEXT_WIDTH, WIDTH), 0)))
-            elif random_start == 2: #right
-                self.other_sprites.add(helpers.generate_asteroid(asteroid, Vec(WIDTH, rd.randint(0, HEIGHT))))
-            else: #bottom
-                self.other_sprites.add(helpers.generate_asteroid(asteroid, Vec(rd.randint(TEXT_WIDTH, WIDTH), HEIGHT)))
 
     def close(self):
         pg.joystick.quit()
@@ -152,6 +140,8 @@ class Game:
         for event in events:
             if event.type == pg.QUIT:
                 return False
+            if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+                self.close()
 
             if not self.game_over:
                 if (event.type == pg.KEYDOWN and event.key == pg.K_LCTRL) or (event.type == pg.JOYBUTTONDOWN and event.button == BUTTON_A):
@@ -206,7 +196,7 @@ class Game:
                 if isinstance(item, (AsteroidA1, AsteroidA3, AsteroidD3)) and not self.player.shield_active:
                     for collided_asteroid in player_collided:
                         self.crash_sound.play()
-                        self.generate_new_asteroid(collided_asteroid)
+                        self.other_sprites.add(AsteroidFactory.create_asteroid(collided_asteroid))
                         self.player.health -= collided_asteroid.damage
                         self.other_sprites.remove(collided_asteroid)
 
@@ -217,7 +207,7 @@ class Game:
                 for collided_asteroid in collided_asteroids:
                     if isinstance(collided_asteroid, (AsteroidA1, AsteroidA3, AsteroidD3)):
                         self.crash_sound.play()
-                        self.generate_new_asteroid(collided_asteroid)
+                        self.other_sprites.add(AsteroidFactory.create_asteroid(collided_asteroid))
                         self.player.points += collided_asteroid.points
                         self.other_sprites.remove(collided_asteroid)
                         self.active_rockets.remove(rocket)
