@@ -1,5 +1,4 @@
 from os.path import join
-import random as rd
 import pygame as pg
 from settings import *
 from asteroids.asteroid_abstract import AsteroidAbstract
@@ -7,7 +6,6 @@ from asteroids.asteroid_abstract import AsteroidAbstract
 class AsteroidA1(AsteroidAbstract):
     def __init__(self, init_pos):
         super().__init__(init_pos)
-        self.speed = rd.randint(1, 5)
         self.damage = 10
         self.points = 2
         self.path = join('assets', 'asteroids', 'medium')

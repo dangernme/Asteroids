@@ -7,7 +7,6 @@ from asteroids.asteroid_abstract import AsteroidAbstract
 class AsteroidD3(AsteroidAbstract):
     def __init__(self, init_pos):
         super().__init__(init_pos)
-        self.speed = rd.randint(1, 5)
         self.damage = 20
         self.points = 3
         self.path = join('assets', 'asteroids', 'medium')

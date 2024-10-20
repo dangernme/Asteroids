@@ -11,7 +11,7 @@ class AsteroidAbstract(pg.sprite.Sprite):
         self.pos = init_pos
         self.image = None
         self.rect = None
-        self.speed = None
+        self.speed = rd.randint(1, 5)
         self.damage = 0
 
     def update(self):
