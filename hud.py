@@ -20,14 +20,28 @@ class Hud():
                 self.game_over_sound_played = True
             bonus_points = player.health // 15
 
+            high_score_file = 'high_score.txt'
+            try:
+                with open(high_score_file, 'r', encoding='utf-8') as file:
+                    high_score = int(file.read().strip())
+            except FileNotFoundError:
+                high_score = 0
+
+            if player.points + bonus_points > high_score:
+                high_score = player.points + bonus_points
+                with open(high_score_file, 'w', encoding='utf-8') as file:
+                    file.write(str(high_score))
+
             game_over_text = self.large_font.render("Game Over", True, RED)
             points_text = self.large_font.render(f"Points:{player.points} ", True, RED)
             health_text = self.large_font.render(f"Health:{player.health}% Bonus:{bonus_points} ", True, RED)
             total_points_text = self.large_font.render(f"Total Points:{player.points + bonus_points} ", True, RED)
+            high_score_text = self.large_font.render(f"High Score:{high_score} ", True, RED)
             surface.blit(game_over_text, (CENTER - game_over_text.get_width() // 2, 200))
             surface.blit(points_text, (CENTER - points_text.get_width() // 2, 300))
             surface.blit(health_text, (CENTER - health_text.get_width() // 2, 400))
             surface.blit(total_points_text, (CENTER - total_points_text.get_width() // 2, 500))
+            surface.blit(high_score_text, (CENTER - high_score_text.get_width() // 2, 600))
             pg.draw.rect(surface, (50,50,50), pg.Rect(0,0, TEXT_WIDTH, HEIGHT))
         else:
             # Text area
